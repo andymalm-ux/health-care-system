@@ -3,6 +3,20 @@ using System.Diagnostics;
 using App;
 
 List<User> users = new List<User>();
+if (File.Exists("Users.txt"))
+{
+    string[] lines = File.ReadAllLines("Users.txt");
+    foreach (string line in lines)
+    {
+        string[] userData = line.Split(',');
+        if (userData.Length == 2)
+        {
+            string email = userData[0];
+            string password = userData[1];
+            users.Add(new User(email, password));
+        }
+    }
+}
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
@@ -96,12 +110,12 @@ while (running)
             Console.WriteLine($"Welcome {activeUser.Email}");
             Console.WriteLine("'Q' for quit and 'L' for log out");
 
-            switch (Console.ReadLine())
+            switch (Console.ReadLine().ToLower())
             {
-                case "Q":
+                case "q":
                     running = false;
                     break;
-                case "L":
+                case "l":
                     activeUser = null;
                     menu = Menu.None;
                     break;
