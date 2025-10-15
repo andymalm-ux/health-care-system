@@ -19,6 +19,22 @@ if (File.Exists("Users.txt"))
     }
 }
 List<User> pendings = new List<User>();
+
+if(File.Exists("Pending.Save"))
+{
+    string[] lines = File.ReadAllLines("Pending.Save");
+    foreach (string line in lines)
+    {
+        string[] pendingData = line.Split(',');
+        if(pendingData.Length == 3)
+        {
+            string email = pendingData[0];
+            string password = pendingData[1];
+            string region = pendingData[2];
+            pendings.Add(new User(email, password, region));
+        }
+    }
+}
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
@@ -107,11 +123,11 @@ while (running)
 
         case Menu.RegisterPatient:
             try { Console.Clear(); } catch { }
-            Console.Write("Enter your email:");
+            Console.Write("Enter your email: ");
             string? regEmail = Console.ReadLine();
-            Console.Write("Enter password:");
+            Console.Write("Enter password: ");
             string? pwd = Console.ReadLine();
-            Console.Write("Enter your region");
+            Console.Write("Enter your region: ");
             string? region = Console.ReadLine();
             string[] new_patient = { $"{regEmail},{pwd},{region}" };
             File.WriteAllLines("Pending.Save", new_patient);
