@@ -3,12 +3,13 @@ using System.Diagnostics;
 using App;
 
 List<User> users = new List<User>();
+List<User> pendings = new List<User>();
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a"));
+users.Add(new User("e", "a", "Halland"));
 
 while (running)
 {
@@ -25,7 +26,8 @@ while (running)
                 {
                     Console.WriteLine("---Welcome to health care system---");
                     Console.WriteLine("1] Login");
-                    Console.WriteLine("2] Quit");
+                    Console.WriteLine("2] Register");
+                    Console.WriteLine("Q] Quit");
 
                     switch (Console.ReadLine())
                     {
@@ -33,6 +35,9 @@ while (running)
                             menu = Menu.Login;
                             break;
                         case "2":
+                            menu = Menu.RegisterPatient;
+                            break;
+                        case "3":
                             running = false;
                             break;
                     }
@@ -82,6 +87,21 @@ while (running)
                     break;
                 }
             }
+            menu = Menu.None;
+            break;
+
+        case Menu.RegisterPatient:
+            try { Console.Clear(); } catch { }
+            Console.Write("Enter your email:");
+            string? regEmail = Console.ReadLine();
+            Console.Write("Enter password:");
+            string? pwd = Console.ReadLine();
+            Console.Write("Enter your region");
+            string? region = Console.ReadLine();
+            string[] new_patient = { $"{regEmail},{pwd},{region}" };
+            File.WriteAllLines("Pending.Save", new_patient);
+            Console.WriteLine("Request sent. press ENTER to continue");
+            Console.ReadLine();
             menu = Menu.None;
             break;
 
