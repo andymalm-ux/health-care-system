@@ -18,5 +18,5 @@ class User : IUser
     return $"{Email},{_password},{Region}";
   }
 
-  public bool TryLogin(string email, string password) => Email == email && _password == password;
+    public bool TryLogin(string email, string password) => Email == email && _password == password;
 }
