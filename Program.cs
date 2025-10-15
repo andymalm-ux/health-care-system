@@ -37,7 +37,7 @@ while (running)
                         case "2":
                             menu = Menu.RegisterPatient;
                             break;
-                        case "3":
+                        case "Q":
                             running = false;
                             break;
                     }
