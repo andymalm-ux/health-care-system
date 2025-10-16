@@ -11,7 +11,7 @@ public class Location
     public string LocationAdress;
     public string LocationDesc;
 
-    public Regions region;
+    public Regions region = Regions.Halland;
 
     public Location(string locationname, string locationadress, string locationdesc, Regions reg)
     {

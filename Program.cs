@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using App;
 
 List<User> users = new List<User>();
@@ -35,6 +37,12 @@ if (File.Exists("Pending.Save"))
         }
     }
 }
+List<Location> locations = new List<Location>();
+
+List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
+
+locations.Add(new Location("Hej", "Finvägen1337", "Bästa i stan", Regions.Halland));
+
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
@@ -58,6 +66,7 @@ while (running)
                     Console.WriteLine("---Welcome to health care system---");
                     Console.WriteLine("1] Login");
                     Console.WriteLine("2] Register");
+                    Console.WriteLine("3] Register Location");
                     Console.WriteLine("Q] Quit");
 
                     switch (Console.ReadLine())
@@ -67,6 +76,9 @@ while (running)
                             break;
                         case "2":
                             menu = Menu.RegisterPatient;
+                            break;
+                        case "3":
+                            menu = Menu.RegisterLocation;
                             break;
                         case "Q":
                             running = false;
@@ -140,6 +152,99 @@ while (running)
             menu = Menu.None;
             break;
 
+        case Menu.RegisterLocation:
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
+            Console.WriteLine("Add a new location");
+            string newLocation = "";
+            bool locationExists = false;
+            while (true)
+            {
+                Console.WriteLine("Enter name of the new location: ");
+                newLocation = Console.ReadLine();
+
+                locationExists = false;
+
+                foreach (Location location in locations)
+                {
+                    if (location is Location l && l.LocationName.ToLower() == newLocation.ToLower())
+                    {
+                        locationExists = true;
+                        break;
+                    }
+                }
+                if (locationExists)
+                {
+                    try
+                    {
+                        Console.Clear();
+                    }
+                    catch { }
+                    Console.WriteLine(
+                        "Location with that name already exists\nPress ENTER to return"
+                    );
+                    Console.ReadLine();
+                    try
+                    {
+                        Console.Clear();
+                    }
+                    catch { }
+                }
+                else
+                {
+                    try
+                    {
+                        Console.Clear();
+                    }
+                    catch { }
+                    break;
+                }
+            }
+            Console.WriteLine("Enter adress of the new location: ");
+            string newAdress = Console.ReadLine();
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
+            Console.WriteLine("Enter description for the new location: ");
+            string newDesc = Console.ReadLine();
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
+
+            Console.WriteLine("Chose which region the location exists whitin: ");
+            int index = 1;
+            foreach (Regions reg in regions)
+            {
+                Console.WriteLine($"{index}. {reg}");
+                index++;
+            }
+            Console.ReadLine();
+            Console.WriteLine("Enter index of the region you want to choose: ");
+            string input = Console.ReadLine();
+            if (
+                int.TryParse(input, out int enteredIndex)
+                && enteredIndex >= 0
+                && enteredIndex <= regions.Count
+            )
+            {
+                // Regions enteredRegion = (Regions)regions.GetValue(enteredIndex);
+                Regions enteredRegion = (Regions)enteredIndex;
+                Console.WriteLine($"{enteredRegion} chosen");
+
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("Invalid input");
+            }
+            break;
         case Menu.Main:
 
             try
