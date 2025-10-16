@@ -38,11 +38,7 @@ users.Add(admin);
 
 while (running)
 {
-    try
-    {
-        Console.Clear();
-    }
-    catch { }
+    ClearConsole();
     switch (menu)
     {
         case Menu.None:
@@ -75,26 +71,14 @@ while (running)
             break;
 
         case Menu.Login:
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Console.WriteLine("Enter Email: ");
             string? email = Console.ReadLine();
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             Console.WriteLine("Enter password: ");
             string? password = Console.ReadLine();
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             Debug.Assert(email != null);
             Debug.Assert(password != null);
@@ -116,11 +100,7 @@ while (running)
             break;
 
         case Menu.RegisterPatient:
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Console.Write("Enter your email:");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password:");
@@ -136,11 +116,7 @@ while (running)
 
         case Menu.Main:
 
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
             Console.WriteLine("1] Give access to permission system");
@@ -178,11 +154,7 @@ while (running)
                 break;
             }
 
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             Console.WriteLine("----- Give admin access to permission system -----\n");
 
@@ -225,11 +197,7 @@ while (running)
             User selectedUser = adminUsers[selectedIndex - 1];
             Permission permission = Permission.HandlePermissionSystem;
 
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
             if (selectedUser.GivePermission(permission))
@@ -246,4 +214,13 @@ while (running)
             menu = Menu.Main;
             break;
     }
+}
+
+static void ClearConsole()
+{
+    try
+    {
+        Console.Clear();
+    }
+    catch { }
 }
