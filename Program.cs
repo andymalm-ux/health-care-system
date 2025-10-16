@@ -32,6 +32,10 @@ users.Add(new User("e", "a", "Halland", Role.Admin));
 users.Add(new User("r", "a", "Halland", Role.Personnel));
 users.Add(new User("t", "a", "Halland", Role.Patient));
 
+User admin = new User("admin", "admin", "Halland", Role.Admin);
+admin.GivePermission(Permission.HandlePermissionSystem);
+users.Add(admin);
+
 while (running)
 {
     try
@@ -160,8 +164,12 @@ while (running)
         case Menu.HandlePermissions:
             Debug.Assert(activeUser != null);
 
-            // Kallar på metod från User-klassen som kollar om den aktiva användaren är admin
-            if (!User.CheckRole(activeUser, Role.Admin))
+            // Kallar på två metoder från User-klassen, den första kollar om den aktiva användaren är admin
+            // och den andra om användaren har behörighet att hantera permissionsystemet.
+            if (
+                !User.CheckRole(activeUser, Role.Admin)
+                || !activeUser.Has(Permission.HandlePermissionSystem)
+            )
             {
                 Console.WriteLine("You don't have permissions to do this.");
                 Console.ReadLine();
