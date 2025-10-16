@@ -15,7 +15,10 @@ if (File.Exists("Users.txt"))
             string password = userData[1];
             string region = userData[2];
             string role = userData[3];
-            users.Add(new User(email, password, region, role));
+            if (Enum.TryParse<Role>(role, true, out Role userRole))
+            {
+                users.Add(new User(email, password, region, userRole));
+            }
         }
     }
 }
@@ -25,9 +28,9 @@ Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a", "Halland", "Admin"));
-users.Add(new User("r", "a", "Halland", "Personnel"));
-users.Add(new User("t", "a", "Halland", "Patient"));
+users.Add(new User("e", "a", "Halland", Role.Admin));
+users.Add(new User("r", "a", "Halland", Role.Personnel));
+users.Add(new User("t", "a", "Halland", Role.Patient));
 
 while (running)
 {
