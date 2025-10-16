@@ -202,9 +202,14 @@ while (running)
             // Kallar på metod från User-klassen som skriver ut alla användare i listan adminUsers
             User.ShowUsers(adminUsers);
 
-            Console.Write("Enter user index: ");
+            Console.WriteLine("Enter user index or press ENTER to go back: ");
             string? input = Console.ReadLine();
 
+            if (string.IsNullOrEmpty(input))
+            {
+                menu = Menu.Main;
+                break;
+            }
             if (
                 !int.TryParse(input, out int selectedIndex)
                 || selectedIndex < 1
