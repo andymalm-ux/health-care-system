@@ -231,7 +231,7 @@ while (running)
             if (
                 int.TryParse(input, out int enteredIndex)
                 && enteredIndex >= 0
-                && enteredIndex <= regions.Count
+                && enteredIndex <= regions.Count();
             )
             {
                 // Regions enteredRegion = (Regions)regions.GetValue(enteredIndex);
