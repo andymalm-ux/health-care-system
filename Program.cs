@@ -9,12 +9,16 @@ if (File.Exists("Users.txt"))
     foreach (string line in lines)
     {
         string[] userData = line.Split(',');
-        if (userData.Length == 3)
+        if (userData.Length == 4)
         {
             string email = userData[0];
             string password = userData[1];
             string region = userData[2];
-            users.Add(new User(email, password, region));
+            string role = userData[3];
+            if (Enum.TryParse<Role>(role, true, out Role userRole))
+            {
+                users.Add(new User(email, password, region, userRole));
+            }
         }
     }
 }
@@ -24,7 +28,9 @@ Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a", "Halland"));
+users.Add(new User("e", "a", "Halland", Role.Admin));
+users.Add(new User("r", "a", "Halland", Role.Personnel));
+users.Add(new User("t", "a", "Halland", Role.Patient));
 
 while (running)
 {
@@ -106,12 +112,16 @@ while (running)
             break;
 
         case Menu.RegisterPatient:
-            try { Console.Clear(); } catch { }
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
             Console.Write("Enter your email:");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password:");
             string? pwd = Console.ReadLine();
-            Console.Write("Enter your region");
+            Console.Write("Enter your region: ");
             string? region = Console.ReadLine();
             string[] new_patient = { $"{regEmail},{pwd},{region}" };
             File.WriteAllLines("Pending.Save", new_patient);
