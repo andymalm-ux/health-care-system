@@ -20,13 +20,13 @@ if (File.Exists("Users.txt"))
 }
 List<User> pendings = new List<User>();
 
-if(File.Exists("Pending.Save"))
+if (File.Exists("Pending.Save"))
 {
     string[] lines = File.ReadAllLines("Pending.Save");
     foreach (string line in lines)
     {
         string[] pendingData = line.Split(',');
-        if(pendingData.Length == 3)
+        if (pendingData.Length == 3)
         {
             string email = pendingData[0];
             string password = pendingData[1];
@@ -122,7 +122,11 @@ while (running)
             break;
 
         case Menu.RegisterPatient:
-            try { Console.Clear(); } catch { }
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
             Console.Write("Enter your email: ");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password: ");
