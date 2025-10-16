@@ -2,6 +2,10 @@
 using System.Diagnostics;
 using App;
 
+// Events event1 = Events.NewEntry("Hej", "På dig");
+// Console.WriteLine(event1.EventStart);
+// Console.ReadLine();
+
 List<User> users = new List<User>();
 if (File.Exists("Users.txt"))
 {

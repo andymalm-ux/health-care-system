@@ -20,16 +20,18 @@ public class Events
         EventStart = eventStart;
     }
 
-    public static void NewEntry(string title, string description)
+    public static Events NewEntry(string title, string description)
     {
-        List<Events> events = new();
+        //List<Events> events = new();
         string eventStart = DateTime.Now.ToString();
 
         Events newEvent = new(title, description, eventStart);
 
-        events.Add(newEvent);
+        // events.Add(newEvent);
 
-        foreach (Events e in events)
+        return newEvent;
+
+        /*foreach (Events e in events)
         {
             if (e != null)
             {
@@ -39,6 +41,6 @@ public class Events
             {
                 Console.WriteLine("Error");
             }
-        }
+        }*/
     }
 }
