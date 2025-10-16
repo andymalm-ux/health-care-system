@@ -48,7 +48,7 @@ class User : IUser
         users.Where(user => user.UserRole == role && user != activeUser).ToList();
 
     // En lista med användare. Varje användare får ett "fake index" som börjar på 1
-    public static void ShowRoleList(List<User> users)
+    public static void ShowUsers(List<User> users)
     {
         for (int i = 0; i < users.Count; i++)
         {

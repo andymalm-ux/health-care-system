@@ -139,10 +139,14 @@ while (running)
             catch { }
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
+            Console.WriteLine("1] Give access to permission system");
             Console.WriteLine("'Q' for quit and 'L' for log out");
 
-            switch (Console.ReadLine().ToLower())
+            switch (Console.ReadLine()?.ToLower())
             {
+                case "1":
+                    menu = Menu.HandlePermissions;
+                    break;
                 case "q":
                     running = false;
                     break;
@@ -151,6 +155,82 @@ while (running)
                     menu = Menu.None;
                     break;
             }
+            break;
+
+        case Menu.HandlePermissions:
+            Debug.Assert(activeUser != null);
+
+            // Kallar på metod från User-klassen som kollar om den aktiva användaren är admin
+            if (!User.CheckRole(activeUser, Role.Admin))
+            {
+                Console.WriteLine("You don't have permissions to do this.");
+                Console.ReadLine();
+
+                menu = Menu.Main;
+                break;
+            }
+
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
+
+            Console.WriteLine("----- Give admin access to permission system -----\n");
+
+            // Kallar på metod från User-klassen som hämtar alla användare med rollen Admin
+            // förutom den inloggade användaren.
+            List<User> adminUsers = User.GetUsersWithRole(users, Role.Admin, activeUser);
+
+            if (adminUsers.Count == 0)
+            {
+                Console.WriteLine("No admins found.");
+                Console.ReadLine();
+
+                menu = Menu.Main;
+                break;
+            }
+
+            // Kallar på metod från User-klassen som skriver ut alla användare i listan adminUsers
+            User.ShowUsers(adminUsers);
+
+            Console.Write("Enter user index: ");
+            string? input = Console.ReadLine();
+
+            if (
+                !int.TryParse(input, out int selectedIndex)
+                || selectedIndex < 1
+                || selectedIndex > adminUsers.Count
+            )
+            {
+                Console.WriteLine("Invalid input");
+                Console.ReadLine();
+                break;
+            }
+
+            // Hämtar den valda användaren från listan (minus 1 eftersom listan egentligen börjar på 0)
+            User selectedUser = adminUsers[selectedIndex - 1];
+            Permission permission = Permission.HandlePermissionSystem;
+
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
+
+            // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
+            if (selectedUser.GivePermission(permission))
+            {
+                Console.WriteLine($"Permission added to {selectedUser.Email}");
+            }
+            else
+            {
+                Console.WriteLine($"{selectedUser.Email} already has this permission.");
+            }
+
+            Console.WriteLine("Press Enter to continue...");
+            Console.ReadLine();
+            menu = Menu.Main;
             break;
     }
 }
