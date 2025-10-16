@@ -2,21 +2,21 @@ namespace App;
 
 class User : IUser
 {
-  public string Email;
-  string _password;
-  string Region;
+    public string Email;
+    string _password;
+    string Region;
 
-  public User(string email, string password, string region)
-  {
-    Email = email;
-    _password = password;
-    Region = region;
+    public User(string email, string password, string region)
+    {
+        Email = email;
+        _password = password;
+        Region = region;
+    }
 
-  }
-  public string ToSaveString()
-  {
-    return $"{Email},{_password},{Region}";
-  }
+    public string ToSaveString()
+    {
+        return $"{Email},{_password},{Region}";
+    }
 
     public bool TryLogin(string email, string password) => Email == email && _password == password;
 }

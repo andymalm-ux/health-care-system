@@ -106,7 +106,11 @@ while (running)
             break;
 
         case Menu.RegisterPatient:
-            try { Console.Clear(); } catch { }
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
             Console.Write("Enter your email:");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password:");

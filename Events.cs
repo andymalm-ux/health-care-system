@@ -8,4 +8,37 @@ public class Events
     //Title på event
     //Beskrivning på event
     //Plats för eventet
+
+    public string Title;
+    public string Description;
+    public string EventStart;
+
+    public Events(string title, string description, string eventStart)
+    {
+        Title = title;
+        Description = description;
+        EventStart = eventStart;
+    }
+
+    public static void NewEntry(string title, string description)
+    {
+        List<Events> events = new();
+        string eventStart = DateTime.Now.ToString();
+
+        Events newEvent = new(title, description, eventStart);
+
+        events.Add(newEvent);
+
+        foreach (Events e in events)
+        {
+            if (e != null)
+            {
+                Console.WriteLine(e.Title + "\n" + e.Description + "\n" + e.EventStart);
+            }
+            else
+            {
+                Console.WriteLine("Error");
+            }
+        }
+    }
 }
