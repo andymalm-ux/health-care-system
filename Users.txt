@@ -1,5 +1,0 @@
-e,a,Halland,Admin
-admin,admin,Halland,Admin
-e,a,Halland,Admin
-admin,admin,Halland,Admin
-andreas,andreas,hej,Patient

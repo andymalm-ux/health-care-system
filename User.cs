@@ -18,7 +18,12 @@ class User : IUser
 
     public string ToSaveString()
     {
-        return $"{Email},{_password},{Region},{UserRole}";
+        string result = $"{Email},{_password},{Region},{UserRole}";
+        foreach (Permission permissions in _permissions)
+        {
+            result += $"{permissions}";
+        }
+        return result;
     }
 
     // Kontrollerar om e-post och lösenord matchar och returnerar true om det gör det.
