@@ -51,6 +51,7 @@ users.Add(new User("t", "a", "Halland", Role.Patient));
 
 User admin = new User("admin", "admin", "Halland", Role.Admin);
 admin.GivePermission(Permission.HandlePermissionSystem);
+admin.GivePermission(Permission.HandleRegistrations);
 users.Add(admin);
 
 while (running)
@@ -141,6 +142,13 @@ while (running)
 
             Dictionary<int, Menu> dynamicMenu = new();
             int menuIndex = 1;
+
+            if (User.CheckAuth(activeUser, Role.Admin, Permission.HandleRegistrations))
+            {
+                dynamicMenu.Add(menuIndex, Menu.ReviewRegistration);
+                Console.WriteLine($"{menuIndex}] Handle registration requests");
+                menuIndex++;
+            }
 
             if (User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
             {
