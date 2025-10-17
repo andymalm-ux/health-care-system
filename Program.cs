@@ -2,6 +2,16 @@
 using System.Diagnostics;
 using App;
 
+/*string eventStart = DateTime.Now.ToString();
+Console.Write("Title: ");
+string? title = Console.ReadLine();
+Console.Write("Descrip: ");
+string? descrip = Console.ReadLine();
+
+Events event1 = Events.NewEntry(title, descrip, eventStart);
+Console.WriteLine(event1.EventStart);
+Console.ReadLine();*/
+
 List<User> users = new List<User>();
 if (File.Exists("Users.txt"))
 {
