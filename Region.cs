@@ -3,6 +3,7 @@ namespace App;
 public enum Regions
 {
     Halland,
+    Dalarna,
 }
 
 public class Location
@@ -11,7 +12,7 @@ public class Location
     public string LocationAdress;
     public string LocationDesc;
 
-    public Regions region = Regions.Halland;
+    public Regions region;
 
     public Location(string locationname, string locationadress, string locationdesc, Regions reg)
     {

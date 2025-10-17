@@ -39,9 +39,25 @@ if (File.Exists("Pending.Save"))
 }
 List<Location> locations = new List<Location>();
 
-List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
+if (File.Exists("locations.txt"))
+{
+    string[] lines = File.ReadAllLines("locations.txt");
+    foreach (string line in lines)
+    {
+        string[] locationData = line.Split(',');
+        if (locationData.Length == 4)
+        {
+            string locationname = locationData[0];
+            string locationadress = locationData[1];
+            string locationdesc = locationData[2];
+            Regions region = Enum.Parse<Regions>(locationData[3]);
 
-locations.Add(new Location("Hej", "Finvägen1337", "Bästa i stan", Regions.Halland));
+            locations.Add(new Location(locationname, locationadress, locationdesc, region));
+        }
+    }
+}
+
+List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
 
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
@@ -219,32 +235,47 @@ while (running)
             catch { }
 
             Console.WriteLine("Chose which region the location exists whitin: ");
-            int index = 1;
-            foreach (Regions reg in regions)
+            Regions[] regionContent = (Regions[])Enum.GetValues(typeof(Regions));
+            for (int i = 0; i < regionContent.Length; i++)
             {
-                Console.WriteLine($"{index}. {reg}");
-                index++;
+                Console.WriteLine($"{i + 1}. {regionContent[i]}");
             }
-            Console.ReadLine();
             Console.WriteLine("Enter index of the region you want to choose: ");
-            string input = Console.ReadLine();
+            string inputLocation = Console.ReadLine();
+
+            Regions chosenRegion;
+
             if (
-                int.TryParse(input, out int enteredIndex)
-                && enteredIndex >= 0
-                && enteredIndex <= regions.Count();
+                int.TryParse(inputLocation, out int enteredIndex)
+                && enteredIndex >= 1
+                && enteredIndex <= regionContent.Length
             )
             {
-                // Regions enteredRegion = (Regions)regions.GetValue(enteredIndex);
-                Regions enteredRegion = (Regions)enteredIndex;
-                Console.WriteLine($"{enteredRegion} chosen");
-
-                Console.ReadLine();
+                chosenRegion = regionContent[enteredIndex - 1];
+                Console.WriteLine($"{chosenRegion} chosen");
             }
             else
             {
-                Console.WriteLine("Invalid input");
+                Console.WriteLine("Invalid input\nPress ENTER to return");
+                Console.ReadLine();
+                break;
             }
+
+            Location addLocation = new Location(newLocation, newAdress, newDesc, chosenRegion);
+            locations.Add(addLocation);
+
+            List<string> newLine = new List<string>
+            {
+                $"{addLocation.LocationName},{addLocation.LocationAdress},{addLocation.LocationDesc},{addLocation.region}",
+            };
+            File.AppendAllLines("Locations.txt", newLine);
+
+            Console.WriteLine("New location added whitin region\nPress ENTER to continue");
+            Console.ReadLine();
+            Console.Clear();
+            menu = Menu.None;
             break;
+
         case Menu.Main:
 
             try
