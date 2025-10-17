@@ -49,13 +49,14 @@ users.Add(new User("e", "a", "Halland", Role.Admin));
 // users.Add(new User("r", "a", "Halland", Role.Personnel));
 // users.Add(new User("t", "a", "Halland", Role.Patient));
 
+User admin = new User("admin", "admin", "Halland", Role.Admin);
+admin.GivePermission(Permission.HandlePermissionSystem);
+users.Add(admin);
+
 while (running)
 {
-    try
-    {
-        Console.Clear();
-    }
-    catch { }
+    ClearConsole();
+
     switch (menu)
     {
         case Menu.None:
@@ -88,26 +89,14 @@ while (running)
             break;
 
         case Menu.Login:
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Console.WriteLine("Enter Email: ");
             string? email = Console.ReadLine();
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             Console.WriteLine("Enter password: ");
             string? password = Console.ReadLine();
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             Debug.Assert(email != null);
             Debug.Assert(password != null);
@@ -129,11 +118,7 @@ while (running)
             break;
 
         case Menu.RegisterPatient:
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Console.Write("Enter your email:");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password:");
@@ -150,27 +135,20 @@ while (running)
 
         case Menu.Main:
 
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
+            Console.WriteLine("1] Give access to permission system");
             if (activeUser.UserRole == Role.Admin)
             {
                 Console.WriteLine("2] Handle registrations");
             }
             Console.WriteLine("'Q' for quit and 'L' for log out");
 
-            switch (Console.ReadLine().ToLower())
+            switch (Console.ReadLine()?.ToLower())
             {
-                case "q":
-                    running = false;
-                    break;
-                case "l":
-                    activeUser = null;
-                    menu = Menu.None;
+                case "1":
+                    menu = Menu.HandlePermissions;
                     break;
                 case "2":
                     Debug.Assert(activeUser != null);
@@ -182,15 +160,18 @@ while (running)
                         Console.ReadLine();
                     }
                     break;
+                case "q":
+                    running = false;
+                    break;
+                case "l":
+                    activeUser = null;
+                    menu = Menu.None;
+                    break;
             }
             break;
 
         case Menu.ReviewRegistration:
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
 
             Debug.Assert(activeUser != null);
             Debug.Assert(activeUser.UserRole == Role.Admin);
@@ -199,10 +180,7 @@ while (running)
             {
                 Console.WriteLine("No pending requests found.");
                 Console.ReadLine();
-                menu = Menu.Main;
-                break;
             }
-
             bool reviewing = true;
             while (reviewing)
             {
@@ -279,32 +257,102 @@ while (running)
                     Console.ReadLine();
                 }
             }
-
             menu = Menu.Main;
             break;
-    }
-    static void SaveUsers(List<User> users)
-    {
-        List<string> lines = new List<string>();
-        int i = 0;
-        while (i < users.Count)
-        {
-            lines.Add(users[i].ToSaveString());
-            i++;
-        }
-        File.WriteAllLines("Users.txt", lines);
-    }
 
-    static void SavePendings(List<User> pendings)
-    {
-        List<string> lines = new List<string>();
-        int i = 0;
-        while (i < pendings.Count)
+        case Menu.HandlePermissions:
         {
-            lines.Add(pendings[i].ToSaveString());
-            // lines.Add(pendings[i].Email + "," + pendings[i].password + ", " + pendings[i].Region);
-            i++;
+            Debug.Assert(activeUser != null);
+
+            // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
+            if (!User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
+            {
+                Console.WriteLine("You don't have permissions to do this.");
+                Console.ReadLine();
+
+                menu = Menu.Main;
+                break;
+            }
+            ClearConsole();
+
+            Console.WriteLine("----- Give admin access to permission system -----\n");
+
+            // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
+            List<User> adminUsers = User.ShowUsersWithRole(users, Role.Admin, activeUser);
+
+            Console.WriteLine("Enter user index or press ENTER to go back: ");
+            string? input = Console.ReadLine();
+
+            if (string.IsNullOrEmpty(input))
+            {
+                menu = Menu.Main;
+                break;
+            }
+            if (
+                !int.TryParse(input, out int selectedIndex)
+                || selectedIndex < 1
+                || selectedIndex > adminUsers.Count
+            )
+            {
+                Console.WriteLine("Invalid input");
+                Console.ReadLine();
+                break;
+            }
+
+            // Hämtar den valda användaren från listan (minus 1 eftersom listan egentligen börjar på 0)
+            User selectedUser = adminUsers[selectedIndex - 1];
+            Permission permission = Permission.HandlePermissionSystem;
+
+            ClearConsole();
+
+            // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
+            if (selectedUser.GivePermission(permission))
+            {
+                Console.WriteLine($"Permission added to {selectedUser.Email}");
+            }
+            else
+            {
+                Console.WriteLine($"{selectedUser.Email} already has this permission.");
+            }
+
+            Console.WriteLine("Press Enter to continue...");
+            Console.ReadLine();
+            menu = Menu.Main;
+            break;
         }
-        File.WriteAllLines("Pending.Save", lines);
     }
+}
+
+static void SaveUsers(List<User> users)
+{
+    List<string> lines = new List<string>();
+    int i = 0;
+    while (i < users.Count)
+    {
+        lines.Add(users[i].ToSaveString());
+        i++;
+    }
+    File.WriteAllLines("Users.txt", lines);
+}
+
+static void SavePendings(List<User> pendings)
+{
+    List<string> lines = new List<string>();
+    int i = 0;
+    while (i < pendings.Count)
+    {
+        lines.Add(pendings[i].ToSaveString());
+        // lines.Add(pendings[i].Email + "," + pendings[i].password + ", " + pendings[i].Region);
+        i++;
+    }
+    File.WriteAllLines("Pending.Save", lines);
+}
+
+static void ClearConsole()
+{
+    try
+    {
+        Console.Clear();
+    }
+    catch { }
 }
