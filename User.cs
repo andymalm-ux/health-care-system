@@ -4,7 +4,7 @@ class User : IUser
 {
     public string Email;
     string _password;
-    string Region;
+    public string Region;
     List<Permission> _permissions = new();
     public Role UserRole;
 
@@ -18,11 +18,29 @@ class User : IUser
 
     public string ToSaveString()
     {
-        return $"{Email},{_password},{Region},{UserRole}";
+        string result = $"{Email},{_password},{Region},{UserRole}";
+        foreach (Permission permissions in _permissions)
+        {
+            result += $"{permissions}";
+        }
+        return result;
     }
 
     // Kontrollerar om e-post och lösenord matchar och returnerar true om det gör det.
     public bool TryLogin(string email, string password) => Email == email && _password == password;
+
+    public void Accept(List<User> users, User pendingUser)
+    {
+        users.Add(
+            new User(pendingUser.Email, pendingUser._password, pendingUser.Region, Role.Patient)
+        );
+        Console.WriteLine($"Accepted: {pendingUser.Email}");
+    }
+
+    public void Deny(string email)
+    {
+        Console.WriteLine($"Denied: {email}");
+    }
 
     // Kollar om en användare har en viss behörighet, returenerar true om den hard en, annars false
     public bool Has(Permission permission) => _permissions.Contains(permission);
