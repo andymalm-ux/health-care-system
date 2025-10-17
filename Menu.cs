@@ -6,4 +6,5 @@ enum Menu
     Login,
     Main,
     RegisterPatient,
+    ReviewRegistration,
 }

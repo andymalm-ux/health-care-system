@@ -23,14 +23,31 @@ if (File.Exists("Users.txt"))
     }
 }
 List<User> pendings = new List<User>();
+
+if (File.Exists("Pending.Save"))
+{
+    string[] lines = File.ReadAllLines("Pending.Save");
+    foreach (string line in lines)
+    {
+        string[] pendingData = line.Split(',');
+        if (pendingData.Length == 3)
+        {
+            string email = pendingData[0];
+            string password = pendingData[1];
+            string region = pendingData[2];
+            pendings.Add(new User(email, password, region, Role.Patient));
+        }
+    }
+}
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
 bool running = true;
 
 users.Add(new User("e", "a", "Halland", Role.Admin));
-users.Add(new User("r", "a", "Halland", Role.Personnel));
-users.Add(new User("t", "a", "Halland", Role.Patient));
+
+// users.Add(new User("r", "a", "Halland", Role.Personnel));
+// users.Add(new User("t", "a", "Halland", Role.Patient));
 
 while (running)
 {
@@ -124,7 +141,8 @@ while (running)
             Console.Write("Enter your region: ");
             string? region = Console.ReadLine();
             string[] new_patient = { $"{regEmail},{pwd},{region}" };
-            File.WriteAllLines("Pending.Save", new_patient);
+            File.AppendAllLines("Pending.Save", new_patient);
+            pendings.Add(new User(regEmail, pwd, region, Role.Patient));
             Console.WriteLine("Request sent. press ENTER to continue");
             Console.ReadLine();
             menu = Menu.None;
@@ -139,6 +157,10 @@ while (running)
             catch { }
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
+            if (activeUser.UserRole == Role.Admin)
+            {
+                Console.WriteLine("2] Handle registrations");
+            }
             Console.WriteLine("'Q' for quit and 'L' for log out");
 
             switch (Console.ReadLine().ToLower())
@@ -150,7 +172,139 @@ while (running)
                     activeUser = null;
                     menu = Menu.None;
                     break;
+                case "2":
+                    Debug.Assert(activeUser != null);
+                    if (activeUser != null && activeUser.UserRole == Role.Admin)
+                        menu = Menu.ReviewRegistration;
+                    else
+                    {
+                        Console.WriteLine("Not authoritized");
+                        Console.ReadLine();
+                    }
+                    break;
             }
             break;
+
+        case Menu.ReviewRegistration:
+            try
+            {
+                Console.Clear();
+            }
+            catch { }
+
+            Debug.Assert(activeUser != null);
+            Debug.Assert(activeUser.UserRole == Role.Admin);
+
+            if (pendings.Count == 0)
+            {
+                Console.WriteLine("No pending requests found.");
+                Console.ReadLine();
+                menu = Menu.Main;
+                break;
+            }
+
+            bool reviewing = true;
+            while (reviewing)
+            {
+                Console.Clear();
+                Console.WriteLine("---Pending Registrations---");
+
+                for (int i = 0; i < pendings.Count; i++)
+                {
+                    Console.WriteLine(
+                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].Region}"
+                    );
+                }
+
+                Console.WriteLine("\nEnter number to handle, or Q to quit:");
+                string input = Console.ReadLine()?.ToLower() ?? "";
+
+                if (input == "q")
+                {
+                    reviewing = false;
+                    break;
+                }
+
+                if (int.TryParse(input, out int choice))
+                {
+                    int selectedIndex = choice - 1;
+
+                    if (selectedIndex >= 0 && selectedIndex < pendings.Count)
+                    {
+                        User pendingUser = pendings[selectedIndex];
+
+                        Console.WriteLine(
+                            $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.Region}"
+                        );
+                        Console.Write("[A]ccept or [D]eny: ");
+                        string pick = Console.ReadLine()?.ToLower() ?? "";
+
+                        if (pick == "a")
+                        {
+                            activeUser.Accept(users, pendingUser);
+                            pendings.Remove(pendingUser);
+                        }
+                        else if (pick == "d")
+                        {
+                            activeUser.Deny(pendingUser.Email);
+                            pendings.Remove(pendingUser);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid choice, pick A or D.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid index.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Please enter a valid number or Q.");
+                }
+
+                SaveUsers(users);
+                SavePendings(pendings);
+
+                if (pendings.Count == 0)
+                {
+                    Console.WriteLine("\nAll requests handled!");
+                    Console.ReadLine();
+                    reviewing = false;
+                }
+                else
+                {
+                    Console.WriteLine("\nPress ENTER to refresh list...");
+                    Console.ReadLine();
+                }
+            }
+
+            menu = Menu.Main;
+            break;
+    }
+    static void SaveUsers(List<User> users)
+    {
+        List<string> lines = new List<string>();
+        int i = 0;
+        while (i < users.Count)
+        {
+            lines.Add(users[i].ToSaveString());
+            i++;
+        }
+        File.WriteAllLines("Users.txt", lines);
+    }
+
+    static void SavePendings(List<User> pendings)
+    {
+        List<string> lines = new List<string>();
+        int i = 0;
+        while (i < pendings.Count)
+        {
+            lines.Add(pendings[i].ToSaveString());
+            // lines.Add(pendings[i].Email + "," + pendings[i].password + ", " + pendings[i].Region);
+            i++;
+        }
+        File.WriteAllLines("Pending.Save", lines);
     }
 }
