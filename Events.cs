@@ -29,6 +29,10 @@ public class Events
 
         // events.Add(newEvent);
 
+        string[] eventToAdd = { title, description, eventStart };
+
+        File.AppendAllLines("Event.txt", eventToAdd);
+
         return newEvent;
 
         /*foreach (Events e in events)
