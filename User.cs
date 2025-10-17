@@ -55,4 +55,30 @@ class User : IUser
             Console.WriteLine($"{i + 1}] {users[i].Email}");
         }
     }
+
+    // En kombination av metoderna Has och CheckRole (kanske överflödig, eller så behövs inte de andra två?)
+    public static bool CheckAuth(User user, Role role, Permission permission)
+    {
+        return CheckRole(user, role) && user.Has(permission);
+    }
+
+    public static List<User> ShowUsersWithRole(List<User> users, Role role, User activeUser)
+    {
+        List<User> filteredUsers = users
+            .Where(user => user.UserRole == role && user != activeUser)
+            .ToList();
+
+        if (filteredUsers.Count == 0)
+        {
+            Console.WriteLine("No users found with that role.");
+        }
+        else
+        {
+            for (int i = 0; i < filteredUsers.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
+            }
+        }
+        return filteredUsers;
+    }
 }

@@ -39,6 +39,7 @@ users.Add(admin);
 while (running)
 {
     ClearConsole();
+
     switch (menu)
     {
         case Menu.None:
@@ -138,14 +139,11 @@ while (running)
             break;
 
         case Menu.HandlePermissions:
+        {
             Debug.Assert(activeUser != null);
 
-            // Kallar på två metoder från User-klassen, den första kollar om den aktiva användaren är admin
-            // och den andra om användaren har behörighet att hantera permissionsystemet.
-            if (
-                !User.CheckRole(activeUser, Role.Admin)
-                || !activeUser.Has(Permission.HandlePermissionSystem)
-            )
+            // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
+            if (!User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
             {
                 Console.WriteLine("You don't have permissions to do this.");
                 Console.ReadLine();
@@ -158,21 +156,8 @@ while (running)
 
             Console.WriteLine("----- Give admin access to permission system -----\n");
 
-            // Kallar på metod från User-klassen som hämtar alla användare med rollen Admin
-            // förutom den inloggade användaren.
-            List<User> adminUsers = User.GetUsersWithRole(users, Role.Admin, activeUser);
-
-            if (adminUsers.Count == 0)
-            {
-                Console.WriteLine("No admins found.");
-                Console.ReadLine();
-
-                menu = Menu.Main;
-                break;
-            }
-
-            // Kallar på metod från User-klassen som skriver ut alla användare i listan adminUsers
-            User.ShowUsers(adminUsers);
+            // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
+            List<User> adminUsers = User.ShowUsersWithRole(users, Role.Admin, activeUser);
 
             Console.WriteLine("Enter user index or press ENTER to go back: ");
             string? input = Console.ReadLine();
@@ -213,6 +198,7 @@ while (running)
             Console.ReadLine();
             menu = Menu.Main;
             break;
+        }
     }
 }
 
