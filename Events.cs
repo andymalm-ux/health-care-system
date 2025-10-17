@@ -12,24 +12,37 @@ public class Events
     public string Title;
     public string Description;
     public string EventStart;
+    public string EventEnd;
 
-    public Events(string title, string description, string eventStart)
+    public Events(string title, string description, string eventStart, string eventEnd)
     {
         Title = title;
         Description = description;
         EventStart = eventStart;
+        EventEnd = eventEnd;
     }
 
-    public static Events NewEntry(string title, string description)
+    public static Events NewEntry(string title, string description, string eventStart)
     {
         //List<Events> events = new();
-        string eventStart = DateTime.Now.ToString();
+        string eventEnd = DateTime.Now.ToString();
 
-        Events newEvent = new(title, description, eventStart);
+        Events newEvent = new(title, description, eventStart, eventEnd);
 
         // events.Add(newEvent);
 
-        string[] eventToAdd = { title, description, eventStart };
+        string[] eventToAdd =
+        {
+            "---Title---\n"
+                + title
+                + "\n---Description---\n"
+                + description
+                + "\n---When---\n"
+                + eventStart
+                + " - "
+                + eventEnd
+                + "\n",
+        };
 
         File.AppendAllLines("Event.txt", eventToAdd);
 
