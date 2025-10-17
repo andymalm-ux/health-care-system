@@ -46,8 +46,8 @@ bool running = true;
 
 users.Add(new User("e", "a", "Halland", Role.Admin));
 
-// users.Add(new User("r", "a", "Halland", Role.Personnel));
-// users.Add(new User("t", "a", "Halland", Role.Patient));
+users.Add(new User("r", "a", "Halland", Role.Personnel));
+users.Add(new User("t", "a", "Halland", Role.Patient));
 
 User admin = new User("admin", "admin", "Halland", Role.Admin);
 admin.GivePermission(Permission.HandlePermissionSystem);
@@ -138,36 +138,32 @@ while (running)
             ClearConsole();
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
-            Console.WriteLine("1] Give access to permission system");
-            if (activeUser.UserRole == Role.Admin)
-            {
-                Console.WriteLine("2] Handle registrations");
-            }
-            Console.WriteLine("'Q' for quit and 'L' for log out");
 
-            switch (Console.ReadLine()?.ToLower())
+            Dictionary<int, Menu> dynamicMenu = new();
+            int menuIndex = 1;
+
+            if (User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
             {
-                case "1":
-                    menu = Menu.HandlePermissions;
-                    break;
-                case "2":
-                    Debug.Assert(activeUser != null);
-                    if (activeUser != null && activeUser.UserRole == Role.Admin)
-                        menu = Menu.ReviewRegistration;
-                    else
-                    {
-                        Console.WriteLine("Not authoritized");
-                        Console.ReadLine();
-                    }
-                    break;
-                case "q":
-                    running = false;
-                    break;
-                case "l":
-                    activeUser = null;
-                    menu = Menu.None;
-                    break;
+                dynamicMenu.Add(menuIndex, Menu.HandlePermissions);
+                Console.WriteLine($"{menuIndex}] Give access to permission system");
+                menuIndex++;
             }
+
+            dynamicMenu.Add(menuIndex, Menu.Logout);
+            Console.WriteLine($"{menuIndex}] Log out");
+            menuIndex++;
+
+            dynamicMenu.Add(menuIndex, Menu.Quit);
+            Console.WriteLine($"{menuIndex}] Quit");
+
+            Console.Write("Select: ");
+            string? userInput = Console.ReadLine();
+
+            if (int.TryParse(userInput, out int userIndex) && dynamicMenu.ContainsKey(userIndex))
+            {
+                menu = dynamicMenu[userIndex];
+            }
+
             break;
 
         case Menu.ReviewRegistration:
@@ -320,6 +316,13 @@ while (running)
             menu = Menu.Main;
             break;
         }
+        case Menu.Logout:
+            activeUser = null;
+            menu = Menu.None;
+            break;
+        case Menu.Quit:
+            running = false;
+            break;
     }
 }
 

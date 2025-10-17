@@ -8,4 +8,6 @@ enum Menu
     RegisterPatient,
     ReviewRegistration,
     HandlePermissions,
+    Logout,
+    Quit,
 }
