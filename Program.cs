@@ -274,8 +274,14 @@ while (running)
         {
             Debug.Assert(activeUser != null);
 
-            // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
-            if (!User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
+            // Kallar på en metod från Auth-klassen, som kollar om användaren har rätt autentisering (roll & behörighet).
+            if (
+                !Auth.HasRoleAndPermission(
+                    activeUser,
+                    Role.Admin,
+                    Permission.HandlePermissionSystem
+                )
+            )
             {
                 Console.WriteLine("You don't have permissions to do this.");
                 Console.ReadLine();
