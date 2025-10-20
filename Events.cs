@@ -22,14 +22,11 @@ public class Events
         EventEnd = eventEnd;
     }
 
-    public static Events NewEntry(string title, string description, string eventStart)
+    public Events NewEntry(string title, string description, string eventStart)
     {
-        //List<Events> events = new();
         string eventEnd = DateTime.Now.ToString();
 
         Events newEvent = new(title, description, eventStart, eventEnd);
-
-        // events.Add(newEvent);
 
         string[] eventToAdd =
         {
@@ -47,17 +44,5 @@ public class Events
         File.AppendAllLines("Event.txt", eventToAdd);
 
         return newEvent;
-
-        /*foreach (Events e in events)
-        {
-            if (e != null)
-            {
-                Console.WriteLine(e.Title + "\n" + e.Description + "\n" + e.EventStart);
-            }
-            else
-            {
-                Console.WriteLine("Error");
-            }
-        }*/
     }
 }
