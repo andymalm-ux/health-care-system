@@ -60,8 +60,8 @@ users.Add(new User("e", "a", "Halland", Role.Admin));
 // users.Add(new User("t", "a", "Halland", Role.Patient));
 
 User admin = new User("admin", "admin", "Halland", Role.Admin);
-admin.GivePermission(Permission.HandlePermissionSystem);
-admin.GivePermission(Permission.HandleRegistrations);
+admin.AddPermission(Permission.HandlePermissionSystem);
+admin.AddPermission(Permission.HandleRegistrations);
 users.Add(admin);
 
 while (running)
