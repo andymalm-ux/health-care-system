@@ -18,7 +18,7 @@ class User : IUser
 
     public string ToSaveString()
     {
-        string result = $"{Email},{_password},{Region},{UserRole}";
+        string result = $"{Email},{_password},{Region},{UserRole},";
         foreach (Permission permissions in _permissions)
         {
             result += $"{permissions}";
