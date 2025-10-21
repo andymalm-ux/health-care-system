@@ -211,8 +211,11 @@ while (running)
 
             if (User.CheckAuth(activeUser, Role.Admin, Permission.HandleRegistrations))
             {
+                dynamicMenu.Add(menuIndex, Menu.HandleRegistrations);
+                Console.WriteLine($"{menuIndex}] Give access to handle registrations");
+                menuIndex++;
                 dynamicMenu.Add(menuIndex, Menu.ReviewRegistration);
-                Console.WriteLine($"{menuIndex}] Handle registration requests");
+                Console.WriteLine($"{menuIndex}] View registration request");
                 menuIndex++;
             }
 
@@ -220,6 +223,12 @@ while (running)
             {
                 dynamicMenu.Add(menuIndex, Menu.HandlePermissions);
                 Console.WriteLine($"{menuIndex}] Give access to permission system");
+                menuIndex++;
+            }
+            if (User.CheckAuth(activeUser, Role.Admin, Permission.HandleLocations))
+            {
+                dynamicMenu.Add(menuIndex, Menu.HandleLocations);
+                Console.WriteLine($"{menuIndex}] Give access to location system");
                 menuIndex++;
             }
 
