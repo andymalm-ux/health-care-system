@@ -7,4 +7,6 @@ enum Menu
     Main,
     RegisterPatient,
     RegisterLocation,
+    ReviewRegistration,
+    HandlePermissions,
 }
