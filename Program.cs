@@ -252,6 +252,7 @@ while (running)
             )
             {
                 chosenRegion = regionContent[enteredIndex - 1];
+                Console.Clear();
                 Console.WriteLine($"{chosenRegion} chosen");
             }
             else
