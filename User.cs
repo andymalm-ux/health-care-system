@@ -21,7 +21,7 @@ public class User : IUser
         string result = $"{Email},{_password},{Region},{UserRole}";
         foreach (Permission permissions in _permissions)
         {
-            result += $"{permissions}";
+            result += $",{permissions}";
         }
         return result;
     }
@@ -43,7 +43,7 @@ public class User : IUser
     }
 
     // Tilldelar en användare en ny behörighet, om den inte redan har den för då returnerar den false annars true
-    public bool GivePermission(Permission permission)
+    public bool AddPermission(Permission permission)
     {
         if (_permissions.Contains(permission))
         {
@@ -52,6 +52,9 @@ public class User : IUser
         _permissions.Add(permission);
         return true;
     }
+
+    public static bool CheckAuth(User user, Role role, Permission permission) =>
+        user.UserRole == role && user._permissions.Contains(permission);
 
     /******  Hjälpmetoder ******/
     // Visar alla användare som har en viss roll, men hoppar över den som är inloggad just nu.
