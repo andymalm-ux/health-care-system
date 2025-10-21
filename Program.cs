@@ -1,8 +1,12 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using App;
 
-/*string eventStart = DateTime.Now.ToString();
+// Console.Write("Type of event: ");
+// Console.WriteLine("1] Appointmen");
+// Console.WriteLine("2] Journalentry");
+// Console.WriteLine("3] Meeting");
+string eventStart = DateTime.Now.ToString();
+
 Console.Write("Title: ");
 string? title = Console.ReadLine();
 Console.Write("Descrip: ");
@@ -10,7 +14,7 @@ string? descrip = Console.ReadLine();
 
 Events event1 = Events.NewEntry(title, descrip, eventStart);
 Console.WriteLine(event1.EventStart);
-Console.ReadLine();*/
+Console.ReadLine();
 
 List<User> users = new List<User>();
 if (File.Exists("Users.txt"))

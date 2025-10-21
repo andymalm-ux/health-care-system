@@ -22,8 +22,11 @@ public class Events
         EventEnd = eventEnd;
     }
 
-    public Events NewEntry(string title, string description, string eventStart)
+    public static Events NewEntry(string title, string description, string eventStart)
     {
+        // Console.Write("Do you want to enter date and time manually? y/n");
+        // string input = Console.ReadLine();
+
         string eventEnd = DateTime.Now.ToString();
 
         Events newEvent = new(title, description, eventStart, eventEnd);
