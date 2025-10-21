@@ -70,8 +70,6 @@ if (File.Exists("locations.txt"))
     }
 }
 
-List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
-
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
