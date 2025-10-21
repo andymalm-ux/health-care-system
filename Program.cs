@@ -19,19 +19,28 @@ if (File.Exists("Users.txt"))
     foreach (string line in lines)
     {
         string[] userData = line.Split(',');
-        if (userData.Length == 4)
+
+        string email = userData[0];
+        string password = userData[1];
+        Regions region = Enum.Parse<Regions>(userData[2]);
+        Role role = Enum.Parse<Role>(userData[3]);
+
+        User user = new(email, password, region, role);
+
+        if (userData.Length > 4)
         {
-            string email = userData[0];
-            string password = userData[1];
-            string region = userData[2];
-            string role = userData[3];
-            if (Enum.TryParse<Role>(role, true, out Role userRole))
+            foreach (string permissionString in userData)
             {
-                users.Add(new User(email, password, region, userRole));
+                if (Enum.TryParse(permissionString, out Permission permission))
+                {
+                    user.AddPermission(permission);
+                }
             }
         }
+        users.Add(user);
     }
 }
+
 List<User> pendings = new List<User>();
 
 if (File.Exists("Pending.Save"))
@@ -44,7 +53,7 @@ if (File.Exists("Pending.Save"))
         {
             string email = pendingData[0];
             string password = pendingData[1];
-            string region = pendingData[2];
+            Regions region = Enum.Parse<Regions>(pendingData[2]);
             pendings.Add(new User(email, password, region, Role.Patient));
         }
     }
@@ -70,19 +79,17 @@ if (File.Exists("locations.txt"))
     }
 }
 
-List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
-
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a", "Halland", Role.Admin));
+users.Add(new User("e", "a", Regions.Halland, Role.Admin));
 
 // users.Add(new User("r", "a", "Halland", Role.Personnel));
 // users.Add(new User("t", "a", "Halland", Role.Patient));
 
-User admin = new User("admin", "admin", "Halland", Role.Admin);
+User admin = new User("admin", "admin", Regions.Halland, Role.Admin);
 admin.AddPermission(Permission.HandlePermissionSystem);
 admin.AddPermission(Permission.HandleRegistrations);
 admin.AddPermission(Permission.HandleLocations);
@@ -158,11 +165,38 @@ while (running)
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password: ");
             string? pwd = Console.ReadLine();
-            Console.Write("Enter your region: ");
-            string? region = Console.ReadLine();
-            string[] new_patient = { $"{regEmail},{pwd},{region}" };
+
+            Console.WriteLine("Chose which region: ");
+            Regions[] regLocation = Enum.GetValues<Regions>();
+            for (int i = 0; i < regLocation.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {regLocation[i]}");
+            }
+            Console.WriteLine("Enter index of the region you want to choose: ");
+            string userInput = Console.ReadLine();
+
+            Regions userLocation;
+
+            if (
+                int.TryParse(userInput, out int locationIndex)
+                && locationIndex >= 1
+                && locationIndex <= regLocation.Length
+            )
+            {
+                userLocation = regLocation[locationIndex - 1];
+                ClearConsole();
+                Console.WriteLine($"{userLocation} chosen");
+            }
+            else
+            {
+                Console.WriteLine("Invalid input\nPress ENTER to return");
+                Console.ReadLine();
+                break;
+            }
+
+            string[] new_patient = { $"{regEmail},{pwd},{userLocation}" };
             File.AppendAllLines("Pending.Save", new_patient);
-            pendings.Add(new User(regEmail, pwd, region, Role.Patient));
+            pendings.Add(new User(regEmail, pwd, userLocation, Role.Patient));
             Console.WriteLine("Request sent. press ENTER to continue");
             Console.ReadLine();
             menu = Menu.None;
@@ -247,7 +281,7 @@ while (running)
                 for (int i = 0; i < pendings.Count; i++)
                 {
                     Console.WriteLine(
-                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].Region}"
+                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].region}"
                     );
                 }
                 Console.WriteLine("\nEnter number to handle, or Q to quit:");
@@ -264,7 +298,7 @@ while (running)
                     {
                         User pendingUser = pendings[selectedIndex];
                         Console.WriteLine(
-                            $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.Region}"
+                            $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.region}"
                         );
                         Console.Write("[A]ccept or [D]eny: ");
                         string pick = Console.ReadLine()?.ToLower() ?? "";
@@ -363,7 +397,7 @@ while (running)
             string newDesc = Console.ReadLine();
             ClearConsole();
             Console.WriteLine("Chose which region the location exists whitin: ");
-            Regions[] regionContent = (Regions[])Enum.GetValues(typeof(Regions));
+            Regions[] regionContent = Enum.GetValues<Regions>();
             for (int i = 0; i < regionContent.Length; i++)
             {
                 Console.WriteLine($"{i + 1}. {regionContent[i]}");
@@ -413,84 +447,91 @@ while (running)
             break;
         }
     }
-
-    static void SaveUsers(List<User> users, string path)
+}
+static void SaveUsers(List<User> users, string path)
+{
+    List<string> lines = new List<string>();
+    int i = 0;
+    while (i < users.Count)
     {
-        List<string> lines = new List<string>();
-        int i = 0;
-        while (i < users.Count)
-        {
-            lines.Add(users[i].ToSaveString());
-            i++;
-        }
-        File.WriteAllLines(path, lines);
+        lines.Add(users[i].ToSaveString());
+        i++;
     }
+    File.WriteAllLines(path, lines);
+}
 
-    static void ClearConsole()
+static void ClearConsole()
+{
+    try
     {
-        try
-        {
-            Console.Clear();
-        }
-        catch { }
+        Console.Clear();
     }
+    catch { }
+}
 
-    static void GivePermission(
-        List<User> users,
-        User activeUser,
-        Role role,
-        Permission selectedPermission
-    )
+static void GivePermission(
+    List<User> users,
+    User activeUser,
+    Role role,
+    Permission selectedPermission
+)
+{
+    // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
+    if (!User.CheckAuth(activeUser, role, selectedPermission))
     {
-        // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
-        if (!User.CheckAuth(activeUser, role, selectedPermission))
-        {
-            Console.WriteLine("You don't have permissions to do this.");
-            Console.ReadLine();
-            return;
-        }
-        ClearConsole();
-
-        Console.WriteLine($"----- Give {role} access to {selectedPermission} -----\n");
-
-        // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
-        List<User> adminUsers = User.ShowUsersWithRole(users, role, activeUser);
-
-        Console.WriteLine("Enter user index or press ENTER to go back: ");
-        string? input = Console.ReadLine();
-
-        if (string.IsNullOrEmpty(input))
-        {
-            return;
-        }
-        if (
-            !int.TryParse(input, out int selectedIndex)
-            || selectedIndex < 1
-            || selectedIndex > adminUsers.Count
-        )
-        {
-            Console.WriteLine("Invalid input");
-            Console.ReadLine();
-            return;
-        }
-
-        // Hämtar den valda användaren från listan (minus 1 eftersom listan egentligen börjar på 0)
-        User selectedUser = adminUsers[selectedIndex - 1];
-
-        ClearConsole();
-
-        // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
-        if (selectedUser.AddPermission(selectedPermission))
-        {
-            Console.WriteLine($"Permission added to {selectedUser.Email}");
-        }
-        else
-        {
-            Console.WriteLine($"{selectedUser.Email} already has this permission.");
-        }
-
-        Console.WriteLine("Press Enter to continue...");
+        Console.WriteLine("You don't have permissions to do this.");
         Console.ReadLine();
         return;
     }
+    ClearConsole();
+
+    Console.WriteLine($"----- Give {role} access to {selectedPermission} -----\n");
+
+    // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
+    List<User> usersList = User.ShowUsersWithRole(users, role, activeUser, selectedPermission);
+
+    if (usersList.Count == 0)
+    {
+        Console.WriteLine("No users found.");
+        Console.ReadLine();
+        return;
+    }
+
+    Console.WriteLine("Enter user index or press ENTER to go back: ");
+    string? input = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(input))
+    {
+        return;
+    }
+    if (
+        !int.TryParse(input, out int selectedIndex)
+        || selectedIndex < 1
+        || selectedIndex > usersList.Count
+    )
+    {
+        Console.WriteLine("Invalid input");
+        Console.ReadLine();
+        return;
+    }
+
+    // Hämtar den valda användaren från listan (minus 1 eftersom listan egentligen börjar på 0)
+    User selectedUser = usersList[selectedIndex - 1];
+
+    ClearConsole();
+
+    // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
+    if (selectedUser.AddPermission(selectedPermission))
+    {
+        Console.WriteLine($"Permission added to {selectedUser.Email}");
+        SaveUsers(users, "Users.txt");
+    }
+    else
+    {
+        Console.WriteLine($"{selectedUser.Email} already has this permission.");
+    }
+
+    Console.WriteLine("Press Enter to continue...");
+    Console.ReadLine();
+    return;
 }
