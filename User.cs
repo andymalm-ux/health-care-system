@@ -4,24 +4,24 @@ class User : IUser
 {
     public string Email;
     string _password;
-    public string Region;
+    public Regions region;
     List<Permission> _permissions = new();
     public Role UserRole;
 
-    public User(string email, string password, string region, Role userRole)
+    public User(string email, string password, Regions userReg, Role userRole)
     {
         Email = email;
         _password = password;
-        Region = region;
+        region = userReg;
         UserRole = userRole;
     }
 
     public string ToSaveString()
     {
-        string result = $"{Email},{_password},{Region},{UserRole}";
+        string result = $"{Email},{_password},{region},{UserRole}";
         foreach (Permission permissions in _permissions)
         {
-            result += $"{permissions}";
+            result += $",{permissions}";
         }
         return result;
     }
@@ -32,7 +32,7 @@ class User : IUser
     public void Accept(List<User> users, User pendingUser)
     {
         users.Add(
-            new User(pendingUser.Email, pendingUser._password, pendingUser.Region, Role.Patient)
+            new User(pendingUser.Email, pendingUser._password, pendingUser.region, Role.Patient)
         );
         Console.WriteLine($"Accepted: {pendingUser.Email}");
     }
@@ -46,7 +46,7 @@ class User : IUser
     public bool Has(Permission permission) => _permissions.Contains(permission);
 
     // Tilldelar en användare en ny behörighet, om den inte redan har den för då returnerar den false annars true
-    public bool GivePermission(Permission permission)
+    public bool AddPermission(Permission permission)
     {
         if (_permissions.Contains(permission))
         {
@@ -80,23 +80,22 @@ class User : IUser
         return CheckRole(user, role) && user.Has(permission);
     }
 
-    public static List<User> ShowUsersWithRole(List<User> users, Role role, User activeUser)
+    public static List<User> ShowUsersWithRole(
+        List<User> users,
+        Role role,
+        User activeUser,
+        Permission permission
+    )
     {
         List<User> filteredUsers = users
-            .Where(user => user.UserRole == role && user != activeUser)
+            .Where(user => user.UserRole == role && user != activeUser && !user.Has(permission))
             .ToList();
 
-        if (filteredUsers.Count == 0)
+        for (int i = 0; i < filteredUsers.Count; i++)
         {
-            Console.WriteLine("No users found with that role.");
+            Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
         }
-        else
-        {
-            for (int i = 0; i < filteredUsers.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
-            }
-        }
+
         return filteredUsers;
     }
 }

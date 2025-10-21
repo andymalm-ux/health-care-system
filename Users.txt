@@ -1,4 +1,0 @@
-e,a,Halland,Admin
-r,a,Halland,Personnel
-t,a,Halland,Patient
-admin,admin,Halland,AdminHandlePermissionSystemHandleRegistrations
