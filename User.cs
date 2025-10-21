@@ -4,15 +4,15 @@ class User : IUser
 {
     public string Email;
     string _password;
-    public string Region;
+    string Region;
     List<Permission> _permissions = new();
     public Role UserRole;
 
-    public User(string email, string password, string region, Role userRole)
+    public User(string email, string password, string regions, Role userRole)
     {
         Email = email;
         _password = password;
-        Region = region;
+        Region = regions;
         UserRole = userRole;
     }
 
