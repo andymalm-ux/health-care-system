@@ -19,18 +19,25 @@ if (File.Exists("Users.txt"))
     foreach (string line in lines)
     {
         string[] userData = line.Split(',');
-        if (userData.Length == 4)
-        {
-            string email = userData[0];
-            string password = userData[1];
-            Regions region = Enum.Parse<Regions>(userData[2]);
-            string role = userData[3];
 
-            if (Enum.TryParse<Role>(role, true, out Role userRole))
+        string email = userData[0];
+        string password = userData[1];
+        Regions region = Enum.Parse<Regions>(userData[2]);
+        Role role = Enum.Parse<Role>(userData[3]);
+
+        User user = new(email, password, region, role);
+
+        if (userData.Length > 4)
+        {
+            foreach (string permissionString in userData)
             {
-                users.Add(new User(email, password, region, userRole));
+                if (Enum.TryParse(permissionString, out Permission permission))
+                {
+                    user.AddPermission(permission);
+                }
             }
         }
+        users.Add(user);
     }
 }
 
