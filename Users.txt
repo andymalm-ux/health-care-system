@@ -1,2 +1,0 @@
-e,a,Halland,Admin,
-admin,admin,Halland,Admin,HandlePermissionSystemHandleRegistrations
