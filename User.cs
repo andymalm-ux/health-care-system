@@ -61,7 +61,7 @@ public class User : IUser
         user.UserRole == role && user._permissions.Contains(permission);
 
     //Kollar om en användare har en viss roll och returnerar true om den har det, annars false
-    public static bool CheckRole(User user, Role requireRole) => user.UserRole == requireRole;
+    public bool CheckRole(Role requireRole) => UserRole == requireRole;
 
     // Visar en lista med alla användare som har en viss roll och sorterar bort den aktiva användaren
     public static List<User> GetUsersWithRole(List<User> users, Role role, User activeUser) =>
