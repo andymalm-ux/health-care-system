@@ -88,9 +88,16 @@ public class User : IUser
             .Where(user => user.UserRole == role && user != activeUser && !user.Has(permission))
             .ToList();
 
+        Console.WriteLine("{0,-10}{1, -10}{2, -10}", "Index", "Email", "Role");
+        Console.WriteLine("----------------------------");
         for (int i = 0; i < filteredUsers.Count; i++)
         {
-            Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
+            Console.WriteLine(
+                "{0,-10}{1, -10}{2, -10}",
+                $"{i + 1}",
+                $"{filteredUsers[i].Email}",
+                $"{filteredUsers[i].UserRole}"
+            );
         }
 
         return filteredUsers;
