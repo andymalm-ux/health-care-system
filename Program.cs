@@ -514,7 +514,9 @@ static void GivePermission(
         return;
     }
 
+    Console.WriteLine();
     Console.WriteLine("Enter user index or press ENTER to go back: ");
+
     string? input = Console.ReadLine();
 
     if (string.IsNullOrEmpty(input))

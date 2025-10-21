@@ -1,6 +1,6 @@
 namespace App;
 
-class User : IUser
+public class User : IUser
 {
     public string Email;
     string _password;
@@ -42,7 +42,7 @@ class User : IUser
         Console.WriteLine($"Denied: {email}");
     }
 
-    // Kollar om en användare har en viss behörighet, returenerar true om den hard en, annars false
+    // Kollar om en användare har en viss behörighet, returnerar true om den har den, annars false
     public bool Has(Permission permission) => _permissions.Contains(permission);
 
     // Tilldelar en användare en ny behörighet, om den inte redan har den för då returnerar den false annars true
@@ -56,10 +56,12 @@ class User : IUser
         return true;
     }
 
-    /******  Hjälpmetoder ******/
+    // Kollar om användaren har rätt roll och behörighet
+    public static bool CheckAuth(User user, Role role, Permission permission) =>
+        user.UserRole == role && user._permissions.Contains(permission);
 
     //Kollar om en användare har en viss roll och returnerar true om den har det, annars false
-    public static bool CheckRole(User user, Role requireRole) => user.UserRole == requireRole;
+    public bool CheckRole(Role requireRole) => UserRole == requireRole;
 
     // Visar en lista med alla användare som har en viss roll och sorterar bort den aktiva användaren
     public static List<User> GetUsersWithRole(List<User> users, Role role, User activeUser) =>
@@ -74,12 +76,7 @@ class User : IUser
         }
     }
 
-    // En kombination av metoderna Has och CheckRole (kanske överflödig, eller så behövs inte de andra två?)
-    public static bool CheckAuth(User user, Role role, Permission permission)
-    {
-        return CheckRole(user, role) && user.Has(permission);
-    }
-
+    // Visar alla användare som har en viss roll, men hoppar över den som är inloggad just nu.
     public static List<User> ShowUsersWithRole(
         List<User> users,
         Role role,
@@ -91,9 +88,16 @@ class User : IUser
             .Where(user => user.UserRole == role && user != activeUser && !user.Has(permission))
             .ToList();
 
+        Console.WriteLine("{0,-10}{1, -10}{2, -10}", "Index", "Email", "Role");
+        Console.WriteLine("----------------------------");
         for (int i = 0; i < filteredUsers.Count; i++)
         {
-            Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
+            Console.WriteLine(
+                "{0,-10}{1, -10}{2, -10}",
+                $"{i + 1}",
+                $"{filteredUsers[i].Email}",
+                $"{filteredUsers[i].UserRole}"
+            );
         }
 
         return filteredUsers;
