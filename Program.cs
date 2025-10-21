@@ -150,7 +150,7 @@ while (running)
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
             Console.WriteLine("1] Give access to permission system");
-            Console.WriteLine("2] Handle registrations");
+            Console.WriteLine("2] Give access to handle registrations");
             Console.WriteLine("3] Review registrations");
             Console.WriteLine("'Q' for quit and 'L' for log out");
 
@@ -345,7 +345,7 @@ while (running)
         ClearConsole();
 
         // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
-        if (selectedUser.GivePermission(selectedPermission))
+        if (selectedUser.AddPermission(selectedPermission))
         {
             Console.WriteLine($"Permission added to {selectedUser.Email}");
         }
