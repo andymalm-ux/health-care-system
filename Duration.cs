@@ -1,4 +1,4 @@
-namespace App;
+/*namespace App;
 
 public class Duration
 {
@@ -20,3 +20,4 @@ public class Duration
         EventEndTime = eventEndTime;
     }
 }
+*/
