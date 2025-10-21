@@ -5,14 +5,52 @@ using App;
 // Console.WriteLine("1] Appointmen");
 // Console.WriteLine("2] Journalentry");
 // Console.WriteLine("3] Meeting");
+
 string eventStart = DateTime.Now.ToString();
+
+EventType type = EventType.None;
+string etype = "";
+
+switch (type)
+{
+    case EventType.None:
+        Console.WriteLine("---Type of appointment---");
+        Console.WriteLine("1] Appointment");
+        Console.WriteLine("2] Journal Entry");
+        Console.WriteLine("3] Meeting");
+
+        bool isRunning = true;
+
+        while (isRunning)
+        {
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    etype = nameof(EventType.Appointment);
+                    isRunning = false;
+                    break;
+
+                case "2":
+                    etype = nameof(EventType.JournalEntry);
+                    isRunning = false;
+                    break;
+
+                case "3":
+                    etype = nameof(EventType.Meeting);
+                    isRunning = false;
+                    break;
+            }
+        }
+
+        break;
+}
 
 Console.Write("Title: ");
 string? title = Console.ReadLine();
 Console.Write("Descrip: ");
 string? descrip = Console.ReadLine();
 
-Events event1 = Events.NewEntry(title, descrip, eventStart);
+Events event1 = Events.NewEntry(etype, title, descrip, eventStart);
 Console.WriteLine(event1.EventStart);
 Console.ReadLine();
 
