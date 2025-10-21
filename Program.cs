@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using App;
 
 /*string eventStart = DateTime.Now.ToString();
@@ -174,11 +172,9 @@ while (running)
             break;
 
         case Menu.RegisterLocation:
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+
+            ClearConsole();
+
             Console.WriteLine("Add a new location");
             string newLocation = "";
             bool locationExists = false;
@@ -199,46 +195,27 @@ while (running)
                 }
                 if (locationExists)
                 {
-                    try
-                    {
-                        Console.Clear();
-                    }
-                    catch { }
+                    ClearConsole();
+
                     Console.WriteLine(
                         "Location with that name already exists\nPress ENTER to return"
                     );
                     Console.ReadLine();
-                    try
-                    {
-                        Console.Clear();
-                    }
-                    catch { }
+
+                    ClearConsole();
                 }
                 else
                 {
-                    try
-                    {
-                        Console.Clear();
-                    }
-                    catch { }
+                    ClearConsole();
                     break;
                 }
             }
             Console.WriteLine("Enter adress of the new location: ");
             string newAdress = Console.ReadLine();
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
+            ClearConsole();
             Console.WriteLine("Enter description for the new location: ");
             string newDesc = Console.ReadLine();
-            try
-            {
-                Console.Clear();
-            }
-            catch { }
-
+            ClearConsole();
             Console.WriteLine("Chose which region the location exists whitin: ");
             Regions[] regionContent = (Regions[])Enum.GetValues(typeof(Regions));
             for (int i = 0; i < regionContent.Length; i++)
@@ -257,7 +234,7 @@ while (running)
             )
             {
                 chosenRegion = regionContent[enteredIndex - 1];
-                Console.Clear();
+                ClearConsole();
                 Console.WriteLine($"{chosenRegion} chosen");
             }
             else
@@ -278,7 +255,7 @@ while (running)
 
             Console.WriteLine("New location added whitin region\nPress ENTER to continue");
             Console.ReadLine();
-            Console.Clear();
+            ClearConsole();
             menu = Menu.None;
             break;
 
@@ -341,7 +318,7 @@ while (running)
             bool reviewing = true;
             while (reviewing)
             {
-                Console.Clear();
+                ClearConsole();
                 Console.WriteLine("---Pending Registrations---");
                 for (int i = 0; i < pendings.Count; i++)
                 {
