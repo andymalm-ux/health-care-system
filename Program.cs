@@ -25,6 +25,7 @@ if (File.Exists("Users.txt"))
             string password = userData[1];
             string region = userData[2];
             string role = userData[3];
+
             if (Enum.TryParse<Role>(role, true, out Role userRole))
             {
                 users.Add(new User(email, password, region, userRole));
@@ -32,6 +33,7 @@ if (File.Exists("Users.txt"))
         }
     }
 }
+
 List<User> pendings = new List<User>();
 
 if (File.Exists("Pending.Save"))
@@ -413,84 +415,91 @@ while (running)
             break;
         }
     }
-
-    static void SaveUsers(List<User> users, string path)
+}
+static void SaveUsers(List<User> users, string path)
+{
+    List<string> lines = new List<string>();
+    int i = 0;
+    while (i < users.Count)
     {
-        List<string> lines = new List<string>();
-        int i = 0;
-        while (i < users.Count)
-        {
-            lines.Add(users[i].ToSaveString());
-            i++;
-        }
-        File.WriteAllLines(path, lines);
+        lines.Add(users[i].ToSaveString());
+        i++;
     }
+    File.WriteAllLines(path, lines);
+}
 
-    static void ClearConsole()
+static void ClearConsole()
+{
+    try
     {
-        try
-        {
-            Console.Clear();
-        }
-        catch { }
+        Console.Clear();
     }
+    catch { }
+}
 
-    static void GivePermission(
-        List<User> users,
-        User activeUser,
-        Role role,
-        Permission selectedPermission
-    )
+static void GivePermission(
+    List<User> users,
+    User activeUser,
+    Role role,
+    Permission selectedPermission
+)
+{
+    // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
+    if (!User.CheckAuth(activeUser, role, selectedPermission))
     {
-        // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
-        if (!User.CheckAuth(activeUser, role, selectedPermission))
-        {
-            Console.WriteLine("You don't have permissions to do this.");
-            Console.ReadLine();
-            return;
-        }
-        ClearConsole();
-
-        Console.WriteLine($"----- Give {role} access to {selectedPermission} -----\n");
-
-        // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
-        List<User> adminUsers = User.ShowUsersWithRole(users, role, activeUser);
-
-        Console.WriteLine("Enter user index or press ENTER to go back: ");
-        string? input = Console.ReadLine();
-
-        if (string.IsNullOrEmpty(input))
-        {
-            return;
-        }
-        if (
-            !int.TryParse(input, out int selectedIndex)
-            || selectedIndex < 1
-            || selectedIndex > adminUsers.Count
-        )
-        {
-            Console.WriteLine("Invalid input");
-            Console.ReadLine();
-            return;
-        }
-
-        // Hämtar den valda användaren från listan (minus 1 eftersom listan egentligen börjar på 0)
-        User selectedUser = adminUsers[selectedIndex - 1];
-
-        ClearConsole();
-
-        // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
-        if (selectedUser.AddPermission(selectedPermission))
-        {
-            Console.WriteLine($"Permission added to {selectedUser.Email}");
-        }
-        else
-        {
-            Console.WriteLine($"{selectedUser.Email} already has this permission.");
-        }
-
-        Console.WriteLine("Press Enter to continue...");
+        Console.WriteLine("You don't have permissions to do this.");
         Console.ReadLine();
         return;
     }
+    ClearConsole();
+
+    Console.WriteLine($"----- Give {role} access to {selectedPermission} -----\n");
+
+    // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
+    List<User> usersList = User.ShowUsersWithRole(users, role, activeUser, selectedPermission);
+
+    if (usersList.Count == 0)
+    {
+        Console.WriteLine("No users found.");
+        Console.ReadLine();
+        return;
+    }
+
+    Console.WriteLine("Enter user index or press ENTER to go back: ");
+    string? input = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(input))
+    {
+        return;
+    }
+    if (
+        !int.TryParse(input, out int selectedIndex)
+        || selectedIndex < 1
+        || selectedIndex > usersList.Count
+    )
+    {
+        Console.WriteLine("Invalid input");
+        Console.ReadLine();
+        return;
+    }
+
+    // Hämtar den valda användaren från listan (minus 1 eftersom listan egentligen börjar på 0)
+    User selectedUser = usersList[selectedIndex - 1];
+
+    ClearConsole();
+
+    // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
+    if (selectedUser.AddPermission(selectedPermission))
+    {
+        Console.WriteLine($"Permission added to {selectedUser.Email}");
+        SaveUsers(users, "Users.txt");
+    }
+    else
+    {
+        Console.WriteLine($"{selectedUser.Email} already has this permission.");
+    }
+
+    Console.WriteLine("Press Enter to continue...");
+    Console.ReadLine();
+    return;
 }

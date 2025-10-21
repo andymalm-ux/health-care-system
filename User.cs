@@ -80,23 +80,22 @@ class User : IUser
         return CheckRole(user, role) && user.Has(permission);
     }
 
-    public static List<User> ShowUsersWithRole(List<User> users, Role role, User activeUser)
+    public static List<User> ShowUsersWithRole(
+        List<User> users,
+        Role role,
+        User activeUser,
+        Permission permission
+    )
     {
         List<User> filteredUsers = users
-            .Where(user => user.UserRole == role && user != activeUser)
+            .Where(user => user.UserRole == role && user != activeUser && !user.Has(permission))
             .ToList();
 
-        if (filteredUsers.Count == 0)
+        for (int i = 0; i < filteredUsers.Count; i++)
         {
-            Console.WriteLine("No users found with that role.");
+            Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
         }
-        else
-        {
-            for (int i = 0; i < filteredUsers.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}] {filteredUsers[i].Email}");
-            }
-        }
+
         return filteredUsers;
     }
 }
