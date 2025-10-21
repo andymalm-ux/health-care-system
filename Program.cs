@@ -23,7 +23,7 @@ if (File.Exists("Users.txt"))
         {
             string email = userData[0];
             string password = userData[1];
-            string region = userData[2];
+            Regions region = Enum.Parse<Regions>(userData[2]);
             string role = userData[3];
 
             if (Enum.TryParse<Role>(role, true, out Role userRole))
@@ -46,7 +46,7 @@ if (File.Exists("Pending.Save"))
         {
             string email = pendingData[0];
             string password = pendingData[1];
-            string region = pendingData[2];
+            Regions region = Enum.Parse<Regions>(pendingData[2]);
             pendings.Add(new User(email, password, region, Role.Patient));
         }
     }
@@ -72,19 +72,17 @@ if (File.Exists("locations.txt"))
     }
 }
 
-List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
-
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a", "Halland", Role.Admin));
+users.Add(new User("e", "a", Regions.Halland, Role.Admin));
 
 // users.Add(new User("r", "a", "Halland", Role.Personnel));
 // users.Add(new User("t", "a", "Halland", Role.Patient));
 
-User admin = new User("admin", "admin", "Halland", Role.Admin);
+User admin = new User("admin", "admin", Regions.Halland, Role.Admin);
 admin.AddPermission(Permission.HandlePermissionSystem);
 admin.AddPermission(Permission.HandleRegistrations);
 admin.AddPermission(Permission.HandleLocations);
@@ -160,11 +158,38 @@ while (running)
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password: ");
             string? pwd = Console.ReadLine();
-            Console.Write("Enter your region: ");
-            string? region = Console.ReadLine();
-            string[] new_patient = { $"{regEmail},{pwd},{region}" };
+
+            Console.WriteLine("Chose which region: ");
+            Regions[] regLocation = Enum.GetValues<Regions>();
+            for (int i = 0; i < regLocation.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {regLocation[i]}");
+            }
+            Console.WriteLine("Enter index of the region you want to choose: ");
+            string userInput = Console.ReadLine();
+
+            Regions userLocation;
+
+            if (
+                int.TryParse(userInput, out int locationIndex)
+                && locationIndex >= 1
+                && locationIndex <= regLocation.Length
+            )
+            {
+                userLocation = regLocation[locationIndex - 1];
+                ClearConsole();
+                Console.WriteLine($"{userLocation} chosen");
+            }
+            else
+            {
+                Console.WriteLine("Invalid input\nPress ENTER to return");
+                Console.ReadLine();
+                break;
+            }
+
+            string[] new_patient = { $"{regEmail},{pwd},{userLocation}" };
             File.AppendAllLines("Pending.Save", new_patient);
-            pendings.Add(new User(regEmail, pwd, region, Role.Patient));
+            pendings.Add(new User(regEmail, pwd, userLocation, Role.Patient));
             Console.WriteLine("Request sent. press ENTER to continue");
             Console.ReadLine();
             menu = Menu.None;
@@ -249,7 +274,7 @@ while (running)
                 for (int i = 0; i < pendings.Count; i++)
                 {
                     Console.WriteLine(
-                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].Region}"
+                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].region}"
                     );
                 }
                 Console.WriteLine("\nEnter number to handle, or Q to quit:");
@@ -266,7 +291,7 @@ while (running)
                     {
                         User pendingUser = pendings[selectedIndex];
                         Console.WriteLine(
-                            $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.Region}"
+                            $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.region}"
                         );
                         Console.Write("[A]ccept or [D]eny: ");
                         string pick = Console.ReadLine()?.ToLower() ?? "";
@@ -365,7 +390,7 @@ while (running)
             string newDesc = Console.ReadLine();
             ClearConsole();
             Console.WriteLine("Chose which region the location exists whitin: ");
-            Regions[] regionContent = (Regions[])Enum.GetValues(typeof(Regions));
+            Regions[] regionContent = Enum.GetValues<Regions>();
             for (int i = 0; i < regionContent.Length; i++)
             {
                 Console.WriteLine($"{i + 1}. {regionContent[i]}");

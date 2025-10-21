@@ -1,2 +1,7 @@
-e,a,Halland,Admin,
-admin,admin,Halland,Admin,HandlePermissionSystemHandleRegistrations
+e,a,Halland,Admin
+s,a,Halland,Patient
+e,a,Halland,Admin
+g,f,Halland,Patient
+e,a,Halland,Admin
+admin,admin,Halland,Admin,HandlePermissionSystem,HandleRegistrations,HandleLocations
+s,w,Dalarna,Patient

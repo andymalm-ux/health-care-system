@@ -4,21 +4,21 @@ class User : IUser
 {
     public string Email;
     string _password;
-    public string Region;
+    public Regions region;
     List<Permission> _permissions = new();
     public Role UserRole;
 
-    public User(string email, string password, string region, Role userRole)
+    public User(string email, string password, Regions userReg, Role userRole)
     {
         Email = email;
         _password = password;
-        Region = region;
+        region = userReg;
         UserRole = userRole;
     }
 
     public string ToSaveString()
     {
-        string result = $"{Email},{_password},{Region},{UserRole}";
+        string result = $"{Email},{_password},{region},{UserRole}";
         foreach (Permission permissions in _permissions)
         {
             result += $",{permissions}";
@@ -32,7 +32,7 @@ class User : IUser
     public void Accept(List<User> users, User pendingUser)
     {
         users.Add(
-            new User(pendingUser.Email, pendingUser._password, pendingUser.Region, Role.Patient)
+            new User(pendingUser.Email, pendingUser._password, pendingUser.region, Role.Patient)
         );
         Console.WriteLine($"Accepted: {pendingUser.Email}");
     }
