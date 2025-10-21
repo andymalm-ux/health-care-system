@@ -49,6 +49,29 @@ if (File.Exists("Pending.Save"))
         }
     }
 }
+
+List<Location> locations = new List<Location>();
+
+if (File.Exists("locations.txt"))
+{
+    string[] lines = File.ReadAllLines("locations.txt");
+    foreach (string line in lines)
+    {
+        string[] locationData = line.Split(',');
+        if (locationData.Length == 4)
+        {
+            string locationname = locationData[0];
+            string locationadress = locationData[1];
+            string locationdesc = locationData[2];
+            Regions region = Enum.Parse<Regions>(locationData[3]);
+
+            locations.Add(new Location(locationname, locationadress, locationdesc, region));
+        }
+    }
+}
+
+List<Regions> regions = new List<Regions>((Regions[])Enum.GetValues(typeof(Regions)));
+
 User? activeUser = null; //startar programmet utan ett inloggat konto
 Menu menu = Menu.None;
 
@@ -62,6 +85,7 @@ users.Add(new User("e", "a", "Halland", Role.Admin));
 User admin = new User("admin", "admin", "Halland", Role.Admin);
 admin.AddPermission(Permission.HandlePermissionSystem);
 admin.AddPermission(Permission.HandleRegistrations);
+admin.AddPermission(Permission.HandleLocations);
 users.Add(admin);
 
 while (running)
@@ -132,7 +156,7 @@ while (running)
             ClearConsole();
             Console.Write("Enter your email:");
             string? regEmail = Console.ReadLine();
-            Console.Write("Enter password:");
+            Console.Write("Enter password: ");
             string? pwd = Console.ReadLine();
             Console.Write("Enter your region: ");
             string? region = Console.ReadLine();
@@ -151,7 +175,9 @@ while (running)
             Console.WriteLine($"Welcome {activeUser.Email}");
             Console.WriteLine("1] Give access to permission system");
             Console.WriteLine("2] Give access to handle registrations");
-            Console.WriteLine("3] Review registrations");
+            Console.WriteLine("3] Give access to handle locations");
+            Console.WriteLine("4] Review registrations");
+            Console.WriteLine("5] Register Location");
             Console.WriteLine("'Q' for quit and 'L' for log out");
 
             switch (Console.ReadLine()?.ToLower())
@@ -163,7 +189,13 @@ while (running)
                     menu = Menu.HandleRegistrations;
                     break;
                 case "3":
+                    menu = Menu.HandleLocations;
+                    break;
+                case "4":
                     menu = Menu.ReviewRegistration;
+                    break;
+                case "5":
+                    menu = Menu.RegisterLocation;
                     break;
                 case "q":
                     running = false;
@@ -179,6 +211,13 @@ while (running)
             ClearConsole();
             Debug.Assert(activeUser != null);
             GivePermission(users, activeUser, Role.Admin, Permission.HandleRegistrations);
+            menu = Menu.Main;
+            break;
+
+        case Menu.HandleLocations:
+            ClearConsole();
+            Debug.Assert(activeUser != null);
+            GivePermission(users, activeUser, Role.Admin, Permission.HandleLocations);
             menu = Menu.Main;
             break;
 
@@ -203,7 +242,7 @@ while (running)
             bool reviewing = true;
             while (reviewing)
             {
-                Console.Clear();
+                ClearConsole();
                 Console.WriteLine("---Pending Registrations---");
                 for (int i = 0; i < pendings.Count; i++)
                 {
@@ -268,6 +307,102 @@ while (running)
                 }
             }
             menu = Menu.Main;
+            break;
+
+        case Menu.RegisterLocation:
+            ClearConsole();
+            Debug.Assert(activeUser != null);
+            Debug.Assert(activeUser.UserRole == Role.Admin);
+            if (!User.CheckAuth(activeUser, Role.Admin, Permission.HandleLocations))
+            {
+                Console.WriteLine("You don't have permissions to do this.");
+                Console.ReadLine();
+                menu = Menu.Main;
+                break;
+            }
+
+            Console.WriteLine("Add a new location");
+            string newLocation = "";
+            bool locationExists = false;
+            while (true)
+            {
+                Console.WriteLine("Enter name of the new location: ");
+                newLocation = Console.ReadLine();
+
+                locationExists = false;
+
+                foreach (Location location in locations)
+                {
+                    if (location is Location l && l.LocationName.ToLower() == newLocation.ToLower())
+                    {
+                        locationExists = true;
+                        break;
+                    }
+                }
+                if (locationExists)
+                {
+                    ClearConsole();
+
+                    Console.WriteLine(
+                        "Location with that name already exists\nPress ENTER to return"
+                    );
+                    Console.ReadLine();
+
+                    ClearConsole();
+                }
+                else
+                {
+                    ClearConsole();
+                    break;
+                }
+            }
+            Console.WriteLine("Enter adress of the new location: ");
+            string newAdress = Console.ReadLine();
+            ClearConsole();
+            Console.WriteLine("Enter description for the new location: ");
+            string newDesc = Console.ReadLine();
+            ClearConsole();
+            Console.WriteLine("Chose which region the location exists whitin: ");
+            Regions[] regionContent = (Regions[])Enum.GetValues(typeof(Regions));
+            for (int i = 0; i < regionContent.Length; i++)
+            {
+                Console.WriteLine($"{i + 1}. {regionContent[i]}");
+            }
+            Console.WriteLine("Enter index of the region you want to choose: ");
+            string inputLocation = Console.ReadLine();
+
+            Regions chosenRegion;
+
+            if (
+                int.TryParse(inputLocation, out int enteredIndex)
+                && enteredIndex >= 1
+                && enteredIndex <= regionContent.Length
+            )
+            {
+                chosenRegion = regionContent[enteredIndex - 1];
+                ClearConsole();
+                Console.WriteLine($"{chosenRegion} chosen");
+            }
+            else
+            {
+                Console.WriteLine("Invalid input\nPress ENTER to return");
+                Console.ReadLine();
+                break;
+            }
+
+            Location addLocation = new Location(newLocation, newAdress, newDesc, chosenRegion);
+            locations.Add(addLocation);
+
+            List<string> newLine = new List<string>
+            {
+                $"{addLocation.LocationName},{addLocation.LocationAdress},{addLocation.LocationDesc},{addLocation.region}",
+            };
+            File.AppendAllLines("Locations.txt", newLine);
+
+            Console.WriteLine("New location added whitin region\nPress ENTER to continue");
+            Console.ReadLine();
+            ClearConsole();
+            menu = Menu.None;
             break;
 
         case Menu.HandlePermissions:
