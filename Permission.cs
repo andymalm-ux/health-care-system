@@ -13,4 +13,7 @@ public enum Permission
     RegisterAppointment,
     ModifyAppointment,
     ApproveAppointment,
+
+    // --- Patient behörigheter --
+    ViewOwnJournal,
 }

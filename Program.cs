@@ -604,7 +604,7 @@ static void ShowUsersAndGiveAccessRights(
             break;
 
         case Role.Patient:
-            availablePermissions.Add(Permission.ViewJournal); // TODO: kanske ska denna vara ViewOwnJournal eller så kan man kolla det med nån annan check
+            availablePermissions.Add(Permission.ViewOwnJournal);
             break;
     }
 
