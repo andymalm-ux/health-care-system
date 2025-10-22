@@ -1,6 +1,6 @@
 namespace App;
 
-enum Role
+public enum Role
 {
     Patient,
     Personnel,

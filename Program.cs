@@ -84,16 +84,7 @@ Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a", Regions.Halland, Role.Admin));
-
-// users.Add(new User("r", "a", "Halland", Role.Personnel));
-// users.Add(new User("t", "a", "Halland", Role.Patient));
-
-User admin = new User("admin", "admin", Regions.Halland, Role.Admin);
-admin.AddPermission(Permission.HandlePermissionSystem);
-admin.AddPermission(Permission.HandleRegistrations);
-admin.AddPermission(Permission.HandleLocations);
-users.Add(admin);
+AddDefaultUsers(users);
 
 while (running)
 {
@@ -239,55 +230,51 @@ while (running)
             ClearConsole();
             Debug.Assert(activeUser != null);
             Console.WriteLine($"Welcome {activeUser.Email}");
-            Console.WriteLine("1] Give access to permission system");
-            Console.WriteLine("2] Give access to handle registrations");
-            Console.WriteLine("3] Give access to handle locations");
-            Console.WriteLine("4] Review registrations");
-            Console.WriteLine("5] Register Location");
-            Console.WriteLine("'Q' for quit and 'L' for log out");
 
-            switch (Console.ReadLine()?.ToLower())
+            Dictionary<int, Menu> dynamicMenu = new();
+            int menuIndex = 1;
+
+            if (User.CheckAuth(activeUser, Role.Admin, Permission.HandleRegistrations))
             {
-                case "1":
-                    menu = Menu.HandlePermissions;
-                    break;
-                case "2":
-                    menu = Menu.HandleRegistrations;
-                    break;
-                case "3":
-                    menu = Menu.HandleLocations;
-                    break;
-                case "4":
-                    menu = Menu.ReviewRegistration;
-                    break;
-                case "5":
-                    menu = Menu.RegisterLocation;
-                    break;
-                case "q":
-                    running = false;
-                    break;
-                case "l":
-                    activeUser = null;
-                    menu = Menu.None;
-                    break;
+                dynamicMenu.Add(menuIndex, Menu.ReviewRegistrations);
+                Console.WriteLine($"{menuIndex}] View registration request");
+                menuIndex++;
             }
+
+            if (User.CheckAuth(activeUser, Role.Admin, Permission.RegisterLocation))
+            {
+                dynamicMenu.Add(menuIndex, Menu.RegisterLocation);
+                Console.WriteLine($"{menuIndex}] Add location");
+                menuIndex++;
+            }
+
+            if (User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
+            {
+                dynamicMenu.Add(menuIndex, Menu.HandlePermissions);
+                Console.WriteLine($"{menuIndex}] Give access to permission system");
+                menuIndex++;
+            }
+
+            dynamicMenu.Add(menuIndex, Menu.Logout);
+            Console.WriteLine($"{menuIndex}] Log out");
+            menuIndex++;
+
+            dynamicMenu.Add(menuIndex, Menu.Quit);
+            Console.WriteLine($"{menuIndex}] Quit\n");
+
+            Console.Write("Select: ");
+            string? selectedInput = Console.ReadLine();
+
+            if (
+                int.TryParse(selectedInput, out int userIndex) && dynamicMenu.ContainsKey(userIndex)
+            )
+            {
+                menu = dynamicMenu[userIndex];
+            }
+
             break;
 
-        case Menu.HandleRegistrations:
-            ClearConsole();
-            Debug.Assert(activeUser != null);
-            GivePermission(users, activeUser, Role.Admin, Permission.HandleRegistrations);
-            menu = Menu.Main;
-            break;
-
-        case Menu.HandleLocations:
-            ClearConsole();
-            Debug.Assert(activeUser != null);
-            GivePermission(users, activeUser, Role.Admin, Permission.HandleLocations);
-            menu = Menu.Main;
-            break;
-
-        case Menu.ReviewRegistration:
+        case Menu.ReviewRegistrations:
             ClearConsole();
             Debug.Assert(activeUser != null);
             Debug.Assert(activeUser.UserRole == Role.Admin);
@@ -309,12 +296,26 @@ while (running)
             while (reviewing)
             {
                 ClearConsole();
-                Console.WriteLine("---Pending Registrations---");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+
+                Console.WriteLine("--------------------------------------------");
+                Console.WriteLine("           Pending Registrations");
+                Console.WriteLine("--------------------------------------------");
+
+                Console.WriteLine("{0,-10}{1,-15}{2,-15}", "Index", "Email", "Selected region");
+                Console.WriteLine("--------------------------------------------");
+                Console.ResetColor();
+
                 for (int i = 0; i < pendings.Count; i++)
                 {
                     Console.WriteLine(
-                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].region}"
+                        "{0,-10}{1,-15}{2,-15}",
+                        $"{i + 1}",
+                        $"{pendings[i].Email}",
+                        $"{pendings[i].region}"
                     );
+
+                    Console.WriteLine("--------------------------------------------");
                 }
                 Console.WriteLine("\nEnter number to handle, or Q to quit:");
                 string input = Console.ReadLine()?.ToLower() ?? "";
@@ -332,7 +333,13 @@ while (running)
                         Console.WriteLine(
                             $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.region}"
                         );
-                        Console.Write("[A]ccept or [D]eny: ");
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write("[A]ccept");
+                        Console.ResetColor();
+                        Console.Write(" or ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("[D]eny: ");
+                        Console.ResetColor();
                         string pick = Console.ReadLine()?.ToLower() ?? "";
                         if (pick == "a")
                         {
@@ -379,7 +386,7 @@ while (running)
             ClearConsole();
             Debug.Assert(activeUser != null);
             Debug.Assert(activeUser.UserRole == Role.Admin);
-            if (!User.CheckAuth(activeUser, Role.Admin, Permission.HandleLocations))
+            if (!User.CheckAuth(activeUser, Role.Admin, Permission.RegisterLocation))
             {
                 Console.WriteLine("You don't have permissions to do this.");
                 Console.ReadLine();
@@ -488,10 +495,23 @@ while (running)
         case Menu.HandlePermissions:
         {
             Debug.Assert(activeUser != null);
-            GivePermission(users, activeUser, Role.Admin, Permission.HandlePermissionSystem);
+
+            ShowUsersAndGiveAccessRights(
+                users,
+                activeUser,
+                Role.Admin,
+                Permission.HandlePermissionSystem
+            );
             menu = Menu.Main;
             break;
         }
+        case Menu.Logout:
+            activeUser = null;
+            menu = Menu.None;
+            break;
+        case Menu.Quit:
+            running = false;
+            break;
     }
 }
 static void SaveUsers(List<User> users, string path)
@@ -515,15 +535,15 @@ static void ClearConsole()
     catch { }
 }
 
-static void GivePermission(
+static void ShowUsersAndGiveAccessRights(
     List<User> users,
     User activeUser,
     Role role,
-    Permission selectedPermission
+    Permission userPermission
 )
 {
     // Kallar på en metod från User-klassen, kollar om användaren har rätt autentisering (roll & behörighet).
-    if (!User.CheckAuth(activeUser, role, selectedPermission))
+    if (!User.CheckAuth(activeUser, role, userPermission))
     {
         Console.WriteLine("You don't have permissions to do this.");
         Console.ReadLine();
@@ -531,10 +551,8 @@ static void GivePermission(
     }
     ClearConsole();
 
-    Console.WriteLine($"----- Give {role} access to {selectedPermission} -----\n");
-
-    // Kallar på en metod från User-klassen som skriver ut alla användare med en specifik roll (förutom den inloggade användaren)
-    List<User> usersList = User.ShowUsersWithRole(users, role, activeUser, selectedPermission);
+    // Kallar på en metod från User-klassen som skriver ut alla användare förutom den inloggade användaren
+    List<User> usersList = User.ShowUsersWithRole(users, activeUser);
 
     if (usersList.Count == 0)
     {
@@ -543,13 +561,16 @@ static void GivePermission(
         return;
     }
 
-    Console.WriteLine("Enter user index or press ENTER to go back: ");
+    Console.WriteLine();
+    Console.WriteLine("Enter user index or press ENTER to go back");
+
     string? input = Console.ReadLine();
 
     if (string.IsNullOrEmpty(input))
     {
         return;
     }
+
     if (
         !int.TryParse(input, out int selectedIndex)
         || selectedIndex < 1
@@ -565,19 +586,106 @@ static void GivePermission(
     User selectedUser = usersList[selectedIndex - 1];
 
     ClearConsole();
+    List<Permission> availablePermissions = new();
+
+    switch (selectedUser.UserRole)
+    {
+        case Role.Admin:
+            availablePermissions.Add(Permission.HandleRegistrations);
+            availablePermissions.Add(Permission.RegisterLocation);
+            availablePermissions.Add(Permission.CreatePersonnelAccount);
+            break;
+
+        case Role.Personnel:
+            availablePermissions.Add(Permission.ViewJournal);
+            availablePermissions.Add(Permission.RegisterAppointment);
+            availablePermissions.Add(Permission.ModifyAppointment);
+            availablePermissions.Add(Permission.ApproveAppointment);
+            break;
+
+        case Role.Patient:
+            availablePermissions.Add(Permission.ViewOwnJournal);
+            break;
+    }
+
+    availablePermissions = availablePermissions
+        .Where(permission => !selectedUser.Has(permission))
+        .ToList();
+
+    if (availablePermissions.Count == 0)
+    {
+        Console.WriteLine(
+            $"{selectedUser.Email} already has all permissions for user role '{selectedUser.UserRole}'."
+        );
+        Console.ReadLine();
+        return;
+    }
+
+    ClearConsole();
+
+    Console.WriteLine(
+        $"---------- Chose an permission to add to {selectedUser.Email} ----------\n"
+    );
+    for (int i = 0; i < availablePermissions.Count; i++)
+    {
+        Console.WriteLine($"{i + 1}] {availablePermissions[i]}");
+    }
+    Console.WriteLine();
+
+    Console.WriteLine("Enter index or press ENTER to go back");
+    string? permissionIndex = Console.ReadLine();
+
+    if (string.IsNullOrEmpty(permissionIndex))
+    {
+        return;
+    }
+
+    if (
+        !int.TryParse(permissionIndex, out int selectedPermissionIndex)
+        || selectedPermissionIndex < 1
+        || selectedPermissionIndex > availablePermissions.Count
+    )
+    {
+        Console.WriteLine("Invalid input");
+        Console.ReadLine();
+        return;
+    }
+
+    Permission selectedPermission = availablePermissions[selectedPermissionIndex - 1];
+    ClearConsole();
+
+    Console.WriteLine($"Permission {selectedPermission} added to {selectedUser.Email}");
 
     // Kallar på metod från User-klassen som försöker lägga till en ny behörighet.
-    if (selectedUser.AddPermission(selectedPermission))
-    {
-        Console.WriteLine($"Permission added to {selectedUser.Email}");
-        SaveUsers(users, "Users.txt");
-    }
-    else
-    {
-        Console.WriteLine($"{selectedUser.Email} already has this permission.");
-    }
+    selectedUser.AddPermission(selectedPermission);
+
+    SaveUsers(users, "Users.txt");
 
     Console.WriteLine("Press Enter to continue...");
     Console.ReadLine();
     return;
+}
+
+// Skapar några hårdkodade användare från början, om de inte redan finns
+static void AddDefaultUsers(List<User> users)
+{
+    // en admin som inte har några behörigheter från början
+    if (!users.Any(user => user.Email == "e"))
+    {
+        users.Add(new("e", "a", Regions.Halland, Role.Admin));
+    }
+
+    // en admin med behörigheter att ge andra admins behörigheter
+    if (!users.Any(user => user.Email == "admin"))
+    {
+        User admin = new("admin", "admin", Regions.Halland, Role.Admin);
+        admin.AddPermission(Permission.HandlePermissionSystem);
+        users.Add(admin);
+    }
+
+    // en personal utan behörigheter från början
+    if (!users.Any(user => user.Email == "nurse"))
+    {
+        users.Add(new("nurse", "nurse", Regions.Halland, Role.Personnel));
+    }
 }
