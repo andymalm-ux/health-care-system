@@ -2,14 +2,13 @@ namespace App;
 
 public enum Permission
 {
+    HandlePermissionSystem, // för att kunna hantera permissionssystemet (ge andra admins behörigheter)
+
     HandleRegistrations, // för att godkänna/neka patient-registreringar
-
     RegisterLocation, // för att kunna lägga till locations
+    CreatePersonnelAccount, // för att skapa personal konto
 
-    HandlePermissionSystem, // för att kunna hantera permissionssystemet (ge admins behörigheter)
-
-    CreatePersonnelAccount,
-
+    // --- Personal behörigheter ---
     ViewJournal,
     RegisterAppointment,
     ModifyAppointment,

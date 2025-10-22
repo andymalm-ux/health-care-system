@@ -221,12 +221,13 @@ while (running)
                 Console.WriteLine($"{menuIndex}] Give access to permission system");
                 menuIndex++;
             }
+
             dynamicMenu.Add(menuIndex, Menu.Logout);
             Console.WriteLine($"{menuIndex}] Log out");
             menuIndex++;
 
             dynamicMenu.Add(menuIndex, Menu.Quit);
-            Console.WriteLine($"{menuIndex}] Quit");
+            Console.WriteLine($"{menuIndex}] Quit\n");
 
             Console.Write("Select: ");
             string? selectedInput = Console.ReadLine();
@@ -262,12 +263,26 @@ while (running)
             while (reviewing)
             {
                 ClearConsole();
-                Console.WriteLine("---Pending Registrations---");
+                Console.ForegroundColor = ConsoleColor.Magenta;
+
+                Console.WriteLine("--------------------------------------------");
+                Console.WriteLine("           Pending Registrations");
+                Console.WriteLine("--------------------------------------------");
+
+                Console.WriteLine("{0,-10}{1,-15}{2,-15}", "Index", "Email", "Selected region");
+                Console.WriteLine("--------------------------------------------");
+                Console.ResetColor();
+
                 for (int i = 0; i < pendings.Count; i++)
                 {
                     Console.WriteLine(
-                        $"[{i + 1}] {pendings[i].Email}, selected region: {pendings[i].region}"
+                        "{0,-10}{1,-15}{2,-15}",
+                        $"{i + 1}",
+                        $"{pendings[i].Email}",
+                        $"{pendings[i].region}"
                     );
+
+                    Console.WriteLine("--------------------------------------------");
                 }
                 Console.WriteLine("\nEnter number to handle, or Q to quit:");
                 string input = Console.ReadLine()?.ToLower() ?? "";
@@ -285,7 +300,13 @@ while (running)
                         Console.WriteLine(
                             $"\nSelected: {pendingUser.Email}, selected region: {pendingUser.region}"
                         );
-                        Console.Write("[A]ccept or [D]eny: ");
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write("[A]ccept");
+                        Console.ResetColor();
+                        Console.Write(" or ");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("[D]eny: ");
+                        Console.ResetColor();
                         string pick = Console.ReadLine()?.ToLower() ?? "";
                         if (pick == "a")
                         {
@@ -502,6 +523,7 @@ static void ShowUsersAndGiveAccessRights(
     {
         return;
     }
+
     if (
         !int.TryParse(input, out int selectedIndex)
         || selectedIndex < 1
@@ -524,7 +546,7 @@ static void ShowUsersAndGiveAccessRights(
         case Role.Admin:
             availablePermissions.Add(Permission.HandleRegistrations);
             availablePermissions.Add(Permission.RegisterLocation);
-            availablePermissions.Add(Permission.HandlePermissionSystem);
+            // availablePermissions.Add(Permission.HandlePermissionSystem);// TODO: kanske inte ska ha med den här just nu?
             availablePermissions.Add(Permission.CreatePersonnelAccount);
             break;
 
@@ -536,7 +558,7 @@ static void ShowUsersAndGiveAccessRights(
             break;
 
         case Role.Patient:
-            availablePermissions.Add(Permission.ViewJournal); //kanske ska denna vara ViewOwnJournal eller så kan man kolla det med nån annan check
+            availablePermissions.Add(Permission.ViewJournal); // TODO: kanske ska denna vara ViewOwnJournal eller så kan man kolla det med nån annan check
             break;
     }
 
@@ -564,7 +586,7 @@ static void ShowUsersAndGiveAccessRights(
     }
     Console.WriteLine();
 
-    Console.WriteLine("Enter permission index or press ENTER to go back");
+    Console.WriteLine("Enter index or press ENTER to go back");
     string? permissionIndex = Console.ReadLine();
 
     if (string.IsNullOrEmpty(permissionIndex))

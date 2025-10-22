@@ -81,14 +81,20 @@ public class User : IUser
         }
 
         Console.ForegroundColor = ConsoleColor.Blue;
-        Console.WriteLine("----------------------------------------------------------------------");
-        Console.WriteLine("                  Give users permission");
-        Console.WriteLine("----------------------------------------------------------------------");
+        Console.WriteLine(
+            "--------------------------------------------------------------------------"
+        );
+        Console.WriteLine("                        Give users permission");
+        Console.WriteLine(
+            "--------------------------------------------------------------------------"
+        );
         Console.ResetColor();
 
         Console.ForegroundColor = ConsoleColor.DarkBlue;
         Console.WriteLine("{0,-10}{1,-20}{2,-20}{3,-20}", "Index", "Email", "Role", "Permissions");
-        Console.WriteLine("----------------------------------------------------------------------");
+        Console.WriteLine(
+            "--------------------------------------------------------------------------"
+        );
         Console.ResetColor();
 
         for (int i = 0; i < filteredUsers.Count; i++)
@@ -126,9 +132,8 @@ public class User : IUser
                     );
                 }
             }
-
             Console.WriteLine(
-                "----------------------------------------------------------------------"
+                "--------------------------------------------------------------------------"
             );
         }
 
