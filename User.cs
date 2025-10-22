@@ -66,19 +66,6 @@ public class User : IUser
     //Kollar om en användare har en viss roll och returnerar true om den har det, annars false
     public bool CheckRole(Role requireRole) => UserRole == requireRole;
 
-    // Visar en lista med alla användare som har en viss roll och sorterar bort den aktiva användaren
-    public static List<User> GetUsersWithRole(List<User> users, Role role, User activeUser) =>
-        users.Where(user => user.UserRole == role && user != activeUser).ToList();
-
-    // En lista med användare. Varje användare får ett "fake index" som börjar på 1
-    public static void ShowUsers(List<User> users)
-    {
-        for (int i = 0; i < users.Count; i++)
-        {
-            Console.WriteLine($"{i + 1}] {users[i].Email}");
-        }
-    }
-
     // Visar alla användare som har en viss roll, men hoppar över den som är inloggad just nu.
     public static List<User> ShowUsersWithRole(List<User> users, User activeUser)
     {
