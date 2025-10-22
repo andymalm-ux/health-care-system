@@ -1,0 +1,3 @@
+e,a,Halland,Admin
+admin,admin,Halland,Admin,HandlePermissionSystem
+nurse,nurse,Halland,Personnel,ViewJournal

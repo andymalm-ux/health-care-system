@@ -12,6 +12,8 @@ enum Menu
     RegisterLocation, // kräver Permission.AddLocations
     ReviewRegistrations, // kräver Permission.HandleRegistrations
 
+    Personnel,
+
     HandlePermissions,
     Logout,
     Quit,

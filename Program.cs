@@ -1,52 +1,6 @@
 ﻿using System.Diagnostics;
 using App;
 
-string eventStart = DateTime.Now.ToString();
-
-EventType type = EventType.None;
-string etype = "";
-
-switch (type)
-{
-    case EventType.None:
-        Console.WriteLine("---Type of appointment---");
-        Console.WriteLine("1] Appointment");
-        Console.WriteLine("2] Journal Entry");
-        Console.WriteLine("3] Meeting");
-
-        bool isRunning = true;
-
-        while (isRunning)
-        {
-            switch (Console.ReadLine())
-            {
-                case "1":
-                    etype = nameof(EventType.Appointment);
-                    isRunning = false;
-                    break;
-
-                case "2":
-                    etype = nameof(EventType.JournalEntry);
-                    isRunning = false;
-                    break;
-
-                case "3":
-                    etype = nameof(EventType.Meeting);
-                    isRunning = false;
-                    break;
-            }
-        }
-
-        break;
-}
-
-Console.Write("Title: ");
-string? title = Console.ReadLine();
-Console.Write("Descrip: ");
-string? descrip = Console.ReadLine();
-
-Events event1 = Events.NewEntry(etype, title, descrip, eventStart);
-
 List<User> users = new List<User>();
 if (File.Exists("Users.txt"))
 {
@@ -289,6 +243,12 @@ while (running)
                 Console.WriteLine($"{menuIndex}] Give access to permission system");
                 menuIndex++;
             }
+            if (User.CheckAuth(activeUser, Role.Personnel, Permission.ViewJournal))
+            {
+                dynamicMenu.Add(menuIndex, Menu.Personnel);
+                Console.WriteLine($"{menuIndex}] Create an event");
+                menuIndex++;
+            }
 
             dynamicMenu.Add(menuIndex, Menu.Logout);
             Console.WriteLine($"{menuIndex}] Log out");
@@ -307,6 +267,62 @@ while (running)
                 menu = dynamicMenu[userIndex];
             }
 
+            break;
+
+        case Menu.Personnel:
+            ClearConsole();
+            string eventStart = DateTime.Now.ToString();
+
+            EventType type = EventType.None;
+            string etype = "";
+
+            switch (type)
+            {
+                case EventType.None:
+                    Console.WriteLine("---Type of appointment---");
+                    Console.WriteLine("1] Appointment");
+                    Console.WriteLine("2] Journal Entry");
+                    Console.WriteLine("3] Meeting");
+
+                    bool isRunning = true;
+
+                    while (isRunning)
+                    {
+                        switch (Console.ReadLine())
+                        {
+                            case "1":
+                                etype = nameof(EventType.Appointment);
+                                isRunning = false;
+                                break;
+
+                            case "2":
+                                etype = nameof(EventType.JournalEntry);
+                                isRunning = false;
+                                break;
+
+                            case "3":
+                                etype = nameof(EventType.Meeting);
+                                isRunning = false;
+                                break;
+                        }
+                    }
+
+                    break;
+            }
+
+            Console.Write("Title: ");
+            string? title = Console.ReadLine();
+            Console.Write("Descrip: ");
+            string? descrip = Console.ReadLine();
+
+            Debug.Assert(title != null);
+            Debug.Assert(descrip != null);
+            Events event1 = Events.NewEntry(etype, title, descrip, eventStart);
+
+            Console.WriteLine("Event created. Press ENTER to continue.");
+            Console.ReadLine();
+
+            menu = Menu.Main;
             break;
 
         case Menu.ReviewRegistrations:

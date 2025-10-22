@@ -1,0 +1,27 @@
+---Type of Event---
+JournalEntry
+---Title---
+Hej
+---Description---
+Stefan börjar bli gammal.
+---When---
+2025-10-22 13:29:32 - 2025-10-22 13:29:56
+
+---Type of Event---
+Appointment
+---Title---
+Tjabba
+---Description---
+Hugo
+---When---
+2025-10-22 13:31:38 - 2025-10-22 13:31:52
+
+---Type of Event---
+Meeting
+---Title---
+Öl
+---Description---
+Snart!!!!!
+---When---
+2025-10-22 13:43:35 - 2025-10-22 13:43:47
+
