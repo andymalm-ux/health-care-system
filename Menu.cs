@@ -4,13 +4,15 @@ enum Menu
 {
     None,
     Login,
-    Main,
+
     RegisterPatient,
-    RegisterLocation,
-    ReviewRegistration, //För att godkänna eller neka registreringar
+
+    Main,
+
+    RegisterLocation, // kräver Permission.AddLocations
+    ReviewRegistrations, // kräver Permission.HandleRegistrations
+
     HandlePermissions,
-    HandleRegistrations, //För att ge admin behörighet att godkänna eller neka registreringar
-    HandleLocations,
     Logout,
     Quit,
 }

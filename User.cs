@@ -31,9 +31,12 @@ public class User : IUser
 
     public void Accept(List<User> users, User pendingUser)
     {
-        users.Add(
-            new User(pendingUser.Email, pendingUser._password, pendingUser.region, Role.Patient)
-        );
+        if (!users.Any(u => u.Email.Equals(pendingUser.Email)))
+        {
+            users.Add(
+                new User(pendingUser.Email, pendingUser._password, pendingUser.region, Role.Patient)
+            );
+        }
         Console.WriteLine($"Accepted: {pendingUser.Email}");
     }
 
@@ -77,26 +80,64 @@ public class User : IUser
     }
 
     // Visar alla användare som har en viss roll, men hoppar över den som är inloggad just nu.
-    public static List<User> ShowUsersWithRole(
-        List<User> users,
-        Role role,
-        User activeUser,
-        Permission permission
-    )
+    public static List<User> ShowUsersWithRole(List<User> users, User activeUser)
     {
-        List<User> filteredUsers = users
-            .Where(user => user.UserRole == role && user != activeUser && !user.Has(permission))
-            .ToList();
+        List<User> filteredUsers = users.Where(user => user != activeUser).ToList();
 
-        Console.WriteLine("{0,-10}{1, -10}{2, -10}", "Index", "Email", "Role");
-        Console.WriteLine("----------------------------");
+        if (filteredUsers.Count == 0)
+        {
+            Console.WriteLine("No users");
+            return new();
+        }
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("----------------------------------------------------------------------");
+        Console.WriteLine("                  Handle permission system");
+        Console.WriteLine("----------------------------------------------------------------------");
+        Console.ResetColor();
+
+        Console.ForegroundColor = ConsoleColor.DarkBlue;
+        Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}", "Index", "Email", "Role", "Permissions");
+        Console.WriteLine("----------------------------------------------------------------------");
+        Console.ResetColor();
+
         for (int i = 0; i < filteredUsers.Count; i++)
         {
+            User user = filteredUsers[i];
+
+            if (user._permissions.Count == 0)
+            {
+                Console.WriteLine(
+                    "{0,-15}{1,-15}{2,-15}{3,-15}",
+                    $"{i + 1}",
+                    $"{filteredUsers[i].Email}",
+                    $"{filteredUsers[i].UserRole}",
+                    "No permissions"
+                );
+            }
+            else
+            {
+                Console.WriteLine(
+                    "{0,-15}{1,-15}{2,-15}{3,-15}",
+                    $"{i + 1}",
+                    $"{filteredUsers[i].Email}",
+                    $"{filteredUsers[i].UserRole}",
+                    $"{user._permissions[0]}"
+                );
+
+                for (int j = 1; j < user._permissions.Count; j++)
+                {
+                    Console.WriteLine(
+                        "{0,-15}{1,-15}{2,-15}{3,-15}",
+                        "",
+                        "",
+                        "",
+                        $"{user._permissions[j]}"
+                    );
+                }
+            }
+
             Console.WriteLine(
-                "{0,-10}{1, -10}{2, -10}",
-                $"{i + 1}",
-                $"{filteredUsers[i].Email}",
-                $"{filteredUsers[i].UserRole}"
+                "----------------------------------------------------------------------"
             );
         }
 
