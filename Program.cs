@@ -146,6 +146,9 @@ while (running)
             if (email == "" && password == "")
             {
                 Console.WriteLine("Enter valid input");
+                Console.ReadLine();
+                menu = Menu.None;
+                break;
             }
 
             bool foundUser = false;
@@ -160,7 +163,7 @@ while (running)
             }
             if (!foundUser)
             {
-                Console.WriteLine("Wrong email or password...");
+                Console.WriteLine("Invalid input...");
                 Console.WriteLine("Press 'ENTER' to try again or register new account");
                 Console.ReadLine();
             }
@@ -169,13 +172,31 @@ while (running)
 
         case Menu.RegisterPatient:
             ClearConsole();
-            Console.Write("Enter your email:");
+            Console.WriteLine("---Register account---");
+            Console.WriteLine("Press ENTER to start registration or 'Q' to quit...");
+            string? quit = Console.ReadLine();
+            Debug.Assert(quit != null);
+            if (quit?.ToLower() == "q")
+            {
+                menu = Menu.None;
+                break;
+            }
+            ClearConsole();
+            Console.Write("Enter your email: ");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password: ");
             string? pwd = Console.ReadLine();
 
             Debug.Assert(regEmail != null);
             Debug.Assert(pwd != null);
+            if (regEmail == "" && pwd == "")
+            {
+                Console.WriteLine("Invalid input..");
+                Console.WriteLine("Press ENTER to go back to menu and try again.");
+                Console.ReadLine();
+                menu = Menu.None;
+                break;
+            }
 
             Console.WriteLine("Chose which region: ");
             Regions[] regLocation = Enum.GetValues<Regions>();
@@ -365,12 +386,20 @@ while (running)
                 menu = Menu.Main;
                 break;
             }
-
-            Console.WriteLine("Add a new location");
+            Console.WriteLine("---Add a new location---");
+            Console.WriteLine("Press 'Q' to quit and enter to continue..");
+            string? locationQuit = Console.ReadLine();
+            Debug.Assert(locationQuit != null);
+            if (locationQuit?.ToLower() == "q")
+            {
+                menu = Menu.Main;
+                break;
+            }
             string? newLocation = "";
             bool locationExists = false;
             while (true)
             {
+                ClearConsole();
                 Console.WriteLine("Enter name of the new location: ");
                 newLocation = Console.ReadLine();
                 Debug.Assert(newLocation != null);
