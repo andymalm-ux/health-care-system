@@ -110,7 +110,7 @@ while (running)
                     Console.WriteLine("2] Register");
                     Console.WriteLine("Q] Quit");
 
-                    switch (Console.ReadLine())
+                    switch (Console.ReadLine()?.ToLower())
                     {
                         case "1":
                             menu = Menu.Login;
@@ -118,7 +118,7 @@ while (running)
                         case "2":
                             menu = Menu.RegisterPatient;
                             break;
-                        case "Q":
+                        case "q":
                             running = false;
                             break;
                     }
@@ -146,25 +146,57 @@ while (running)
             if (email == "" && password == "")
             {
                 Console.WriteLine("Enter valid input");
+                Console.ReadLine();
+                menu = Menu.None;
+                break;
             }
 
+            bool foundUser = false;
             foreach (User user in users)
             {
                 if (user.TryLogin(email, password))
                 {
                     activeUser = user;
+                    foundUser = true;
                     break;
                 }
+            }
+            if (!foundUser)
+            {
+                Console.WriteLine("Invalid input...");
+                Console.WriteLine("Press 'ENTER' to try again or register new account");
+                Console.ReadLine();
             }
             menu = Menu.None;
             break;
 
         case Menu.RegisterPatient:
             ClearConsole();
-            Console.Write("Enter your email:");
+            Console.WriteLine("---Register account---");
+            Console.WriteLine("Press ENTER to start registration or 'Q' to quit...");
+            string? quit = Console.ReadLine();
+            Debug.Assert(quit != null);
+            if (quit?.ToLower() == "q")
+            {
+                menu = Menu.None;
+                break;
+            }
+            ClearConsole();
+            Console.Write("Enter your email: ");
             string? regEmail = Console.ReadLine();
             Console.Write("Enter password: ");
             string? pwd = Console.ReadLine();
+
+            Debug.Assert(regEmail != null);
+            Debug.Assert(pwd != null);
+            if (regEmail == "" && pwd == "")
+            {
+                Console.WriteLine("Invalid input..");
+                Console.WriteLine("Press ENTER to go back to menu and try again.");
+                Console.ReadLine();
+                menu = Menu.None;
+                break;
+            }
 
             Console.WriteLine("Chose which region: ");
             Regions[] regLocation = Enum.GetValues<Regions>();
@@ -173,7 +205,7 @@ while (running)
                 Console.WriteLine($"{i + 1}. {regLocation[i]}");
             }
             Console.WriteLine("Enter index of the region you want to choose: ");
-            string userInput = Console.ReadLine();
+            string? userInput = Console.ReadLine();
 
             Regions userLocation;
 
@@ -354,14 +386,23 @@ while (running)
                 menu = Menu.Main;
                 break;
             }
-
-            Console.WriteLine("Add a new location");
-            string newLocation = "";
+            Console.WriteLine("---Add a new location---");
+            Console.WriteLine("Press 'Q' to quit and enter to continue..");
+            string? locationQuit = Console.ReadLine();
+            Debug.Assert(locationQuit != null);
+            if (locationQuit?.ToLower() == "q")
+            {
+                menu = Menu.Main;
+                break;
+            }
+            string? newLocation = "";
             bool locationExists = false;
             while (true)
             {
+                ClearConsole();
                 Console.WriteLine("Enter name of the new location: ");
                 newLocation = Console.ReadLine();
+                Debug.Assert(newLocation != null);
 
                 locationExists = false;
 
@@ -391,11 +432,15 @@ while (running)
                 }
             }
             Console.WriteLine("Enter adress of the new location: ");
-            string newAdress = Console.ReadLine();
+            string? newAdress = Console.ReadLine();
+            Debug.Assert(newAdress != null);
             ClearConsole();
+
             Console.WriteLine("Enter description for the new location: ");
-            string newDesc = Console.ReadLine();
+            string? newDesc = Console.ReadLine();
+            Debug.Assert(newDesc != null);
             ClearConsole();
+
             Console.WriteLine("Chose which region the location exists whitin: ");
             Regions[] regionContent = Enum.GetValues<Regions>();
             for (int i = 0; i < regionContent.Length; i++)
@@ -403,7 +448,8 @@ while (running)
                 Console.WriteLine($"{i + 1}. {regionContent[i]}");
             }
             Console.WriteLine("Enter index of the region you want to choose: ");
-            string inputLocation = Console.ReadLine();
+            string? inputLocation = Console.ReadLine();
+            Debug.Assert(newLocation != null);
 
             Regions chosenRegion;
 
