@@ -69,7 +69,11 @@ public class User : IUser
     // Visar alla användare som har en viss roll, men hoppar över den som är inloggad just nu.
     public static List<User> ShowUsersWithRole(List<User> users, User activeUser)
     {
-        List<User> filteredUsers = users.Where(user => user != activeUser).ToList();
+        List<User> filteredUsers = users
+            .Where(user => user != activeUser)
+            .OrderByDescending(user => user.UserRole)
+            .ThenBy(user => user.Email)
+            .ToList();
 
         if (filteredUsers.Count == 0)
         {
@@ -83,7 +87,7 @@ public class User : IUser
         Console.ResetColor();
 
         Console.ForegroundColor = ConsoleColor.DarkBlue;
-        Console.WriteLine("{0,-15}{1,-15}{2,-15}{3,-15}", "Index", "Email", "Role", "Permissions");
+        Console.WriteLine("{0,-10}{1,-20}{2,-20}{3,-20}", "Index", "Email", "Role", "Permissions");
         Console.WriteLine("----------------------------------------------------------------------");
         Console.ResetColor();
 
@@ -94,7 +98,7 @@ public class User : IUser
             if (user._permissions.Count == 0)
             {
                 Console.WriteLine(
-                    "{0,-15}{1,-15}{2,-15}{3,-15}",
+                    "{0,-10}{1,-20}{2,-20}{3,-20}",
                     $"{i + 1}",
                     $"{filteredUsers[i].Email}",
                     $"{filteredUsers[i].UserRole}",
@@ -104,7 +108,7 @@ public class User : IUser
             else
             {
                 Console.WriteLine(
-                    "{0,-15}{1,-15}{2,-15}{3,-15}",
+                    "{0,-10}{1,-20}{2,-20}{3,-20}",
                     $"{i + 1}",
                     $"{filteredUsers[i].Email}",
                     $"{filteredUsers[i].UserRole}",
@@ -114,7 +118,7 @@ public class User : IUser
                 for (int j = 1; j < user._permissions.Count; j++)
                 {
                     Console.WriteLine(
-                        "{0,-15}{1,-15}{2,-15}{3,-15}",
+                        "{0,-10}{1,-20}{2,-20}{3,-20}",
                         "",
                         "",
                         "",
