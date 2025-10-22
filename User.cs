@@ -86,12 +86,12 @@ public class User : IUser
 
         if (filteredUsers.Count == 0)
         {
-            Console.WriteLine("No users");
             return new();
         }
+
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.WriteLine("----------------------------------------------------------------------");
-        Console.WriteLine("                  Handle permission system");
+        Console.WriteLine("                  Give users permission");
         Console.WriteLine("----------------------------------------------------------------------");
         Console.ResetColor();
 

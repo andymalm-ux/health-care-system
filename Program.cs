@@ -84,12 +84,7 @@ Menu menu = Menu.None;
 
 bool running = true;
 
-users.Add(new User("e", "a", Regions.Halland, Role.Admin));
-
-User admin = new User("admin", "admin", Regions.Halland, Role.Admin);
-admin.AddPermission(Permission.HandlePermissionSystem);
-
-users.Add(admin);
+AddDefaultUsers(users);
 
 while (running)
 {
@@ -606,16 +601,21 @@ static void ShowUsersAndGiveAccessRights(
 // Skapar några hårdkodade användare från början, om de inte redan finns
 static void AddDefaultUsers(List<User> users)
 {
+    // en admin som inte har några behörigheter från början
     if (!users.Any(user => user.Email == "e"))
     {
         users.Add(new("e", "a", Regions.Halland, Role.Admin));
     }
+
+    // en admin med behörigheter att ge andra admins behörigheter
     if (!users.Any(user => user.Email == "admin"))
     {
         User admin = new("admin", "admin", Regions.Halland, Role.Admin);
         admin.AddPermission(Permission.HandlePermissionSystem);
         users.Add(admin);
     }
+
+    // en personal utan behörigheter från början
     if (!users.Any(user => user.Email == "nurse"))
     {
         users.Add(new("nurse", "nurse", Regions.Halland, Role.Personnel));
