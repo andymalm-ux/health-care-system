@@ -49,15 +49,7 @@ public class User : IUser
     public bool Has(Permission permission) => _permissions.Contains(permission);
 
     // Tilldelar en användare en ny behörighet, om den inte redan har den för då returnerar den false annars true
-    public bool AddPermission(Permission permission)
-    {
-        if (_permissions.Contains(permission))
-        {
-            return false;
-        }
-        _permissions.Add(permission);
-        return true;
-    }
+    public void AddPermission(Permission permission) => _permissions.Add(permission);
 
     // Kollar om användaren har rätt roll och behörighet
     public static bool CheckAuth(User user, Role role, Permission permission) =>

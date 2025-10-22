@@ -215,6 +215,7 @@ while (running)
                 Console.WriteLine($"{menuIndex}] Add location");
                 menuIndex++;
             }
+
             if (User.CheckAuth(activeUser, Role.Admin, Permission.HandlePermissionSystem))
             {
                 dynamicMenu.Add(menuIndex, Menu.HandlePermissions);
@@ -546,7 +547,6 @@ static void ShowUsersAndGiveAccessRights(
         case Role.Admin:
             availablePermissions.Add(Permission.HandleRegistrations);
             availablePermissions.Add(Permission.RegisterLocation);
-            // availablePermissions.Add(Permission.HandlePermissionSystem);// TODO: kanske inte ska ha med den här just nu?
             availablePermissions.Add(Permission.CreatePersonnelAccount);
             break;
 
